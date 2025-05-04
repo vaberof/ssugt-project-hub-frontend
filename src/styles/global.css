@@ -65,6 +65,34 @@ body {
   color: var(--text-secondary);
 }
 
+.nav-links a,
+.auth-button a {
+  text-decoration: none; /* Убираем подчеркивание */
+  color: inherit; /* Наследуем цвет текста */
+}
+
+.nav-links a:focus,
+.auth-button:focus {
+  outline: none; /* Убираем выделение */
+}
+
+.nav-link {
+  cursor: pointer;
+  white-space: nowrap; /* Предотвращаем перенос текста */
+}
+
+.nav-links a.active {
+  color: var(--primary-blue); /* Синий цвет для активного раздела */
+  font-weight: 300; /* Можно добавить жирность для выделения */
+  pointer-events: none; /* Отключаем возможность клика */
+}
+
+.nav-links a.disabled {
+  color: var(--text-placeholder); /* Серый цвет для неактивных разделов */
+  pointer-events: none; /* Отключаем возможность клика */
+  cursor: default; /* Меняем курсор на стандартный */
+}
+
 .auth-section {
   display: flex;
   align-items: center;
@@ -192,7 +220,7 @@ body {
   border: none;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 60px;
+  margin-top: 15px;
 }
 
 .login-prompt,

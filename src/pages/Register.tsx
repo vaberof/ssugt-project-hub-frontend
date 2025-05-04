@@ -86,7 +86,7 @@ export const Register: React.FC = () => {
             type="text"
             name="fullName"
             className="form-input"
-            placeholder="Иван��в Иван Иванович"
+            placeholder="Иванов Иван Иванович"
             value={formData.fullName}
             onChange={handleChange}
           />
