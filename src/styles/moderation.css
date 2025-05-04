@@ -1,0 +1,232 @@
+.moderation-page {
+  background-color: rgb(255, 255, 255);
+  overflow: hidden;
+}
+
+.moderation-content {
+  background-color: rgb(250, 250, 250);
+  width: 100%;
+  padding-bottom: 265px;
+}
+
+@media (max-width: 991px) {
+  .moderation-content {
+    padding-bottom: 100px;
+  }
+}
+
+.moderation-grid {
+  margin: 24px auto -53px;
+  width: 100%;
+  max-width: 1102px;
+  display: flex;
+  gap: 20px;
+}
+
+@media (max-width: 991px) {
+  .moderation-grid {
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+}
+
+.filter-column {
+  width: 29%;
+}
+
+@media (max-width: 991px) {
+  .filter-column {
+    width: 100%;
+    margin-top: 40px;
+  }
+}
+
+.filter-card {
+  background-color: white;
+  border-radius: 24px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px 23px;
+  font-family: Roboto, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  color: rgb(51, 51, 51);
+}
+
+.filter-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.filter-input {
+  width: 100%;
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 12px;
+  padding: 15px 12px;
+  font-size: 15px;
+  color: rgb(153, 153, 153);
+}
+
+.filter-select {
+  position: relative;
+  width: 100%;
+}
+
+.filter-select-input {
+  width: 100%;
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 12px;
+  padding: 10px 8px;
+  appearance: none;
+  background-color: white;
+  color: rgb(153, 153, 153);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  pointer-events: none;
+}
+
+.date-input-wrapper {
+  position: relative;
+}
+
+.date-icon {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+}
+
+.search-button {
+  width: 100%;
+  background-color: rgb(59, 130, 246);
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-icon {
+  width: 20px;
+}
+
+.projects-column {
+  width: 71%;
+}
+
+@media (max-width: 991px) {
+  .projects-column {
+    width: 100%;
+    margin-top: 40px;
+  }
+}
+
+.projects-header {
+  margin-bottom: 32px;
+}
+
+.projects-title {
+  color: rgb(51, 51, 51);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.projects-subtitle {
+  color: rgb(102, 102, 102);
+  font-size: 16px;
+}
+
+.moderation-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-title {
+  color: rgb(51, 51, 51);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 9px;
+}
+
+.card-authors {
+  color: rgb(102, 102, 102);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.status-badge {
+  background-color: rgb(250, 214, 165);
+  color: rgb(139, 69, 19);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.card-description {
+  color: rgb(102, 102, 102);
+  font-size: 16px;
+  line-height: 2;
+  margin: 17px 0 22px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.approve-button {
+  background-color: rgb(154, 230, 180);
+  color: rgb(39, 103, 73);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.reject-button {
+  background-color: rgb(255, 179, 179);
+  color: rgb(125, 43, 43);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}

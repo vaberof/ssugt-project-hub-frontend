@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  --primary-blue: rgba(59, 130, 246, 1);
+  --text-primary: rgba(51, 51, 51, 1);
+  --text-secondary: rgba(102, 102, 102, 1);
+  --text-placeholder: rgba(153, 153, 153, 1);
+  --border-color: rgba(224, 224, 224, 1);
+  --white: rgba(255, 255, 255, 1);
+  --background: rgba(245, 245, 245, 1);
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', -apple-system, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.header {
+  background-color: var(--white);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 15px 70px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.header-content {
+  display: flex;
+  width: 100%;
+  max-width: 990px;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 20px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.logo-image {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 31px;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.auth-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.login-link {
+  color: var(--primary-blue);
+  cursor: pointer;
+}
+
+.divider {
+  background-color: var(--border-color);
+  width: 1px;
+  height: 16px;
+}
+
+.register-button {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.auth-button {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.register-container,
+.login-container {
+  background-color: var(--background);
+  padding-bottom: 16px;
+  padding-right: 17px;
+  min-height: 100vh;
+}
+
+.register-form,
+.login-form {
+  background-color: var(--white);
+  border-radius: 24px;
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-width: 100%;
+  margin: 20px auto;
+  padding: 40px 32px;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.form-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.form-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 15px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text-placeholder);
+  box-sizing: border-box;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.show-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-blue);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.submit-button {
+  width: 100%;
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 60px;
+}
+
+.login-prompt,
+.register-prompt {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.login-prompt-link,
+.register-prompt-link {
+  color: var(--primary-blue);
+  cursor: pointer;
+}
+
+.forgot-password {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 991px) {
+  .header {
+    padding: 15px 20px;
+  }
+
+  .header-content {
+    max-width: 100%;
+  }
+
+  .register-form {
+    padding: 40px 20px;
+  }
+
+  .form-input {
+    padding-right: 20px;
+  }
+}
