@@ -70,7 +70,7 @@ export const Profile: React.FC = () => {
               name="email"
               className="info-input"
               value={formData.email}
-              onChange={handleInputChange}
+              disabled // Поле недоступно для редактирования
             />
           ) : (
             <div className="info-value">{formData.email}</div>
