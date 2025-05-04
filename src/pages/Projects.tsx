@@ -34,7 +34,7 @@ export const Projects: React.FC = () => {
               authors="Шарапов Артём Андреевич, Строганов Данила, Припоров Владислав"
               date="05.04.2025"
               images={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/d573676e09ac7bcf900df7d78146d691823de5dd?placeholderIfAbsent=true']}
-              sliderImages={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/f8de2e6aa48b29c35fdde6cd43f75d6f345be50c?placeholderIfAbsent=true', 'https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/93482f7d8fd414851a43b1567312051d084afb49?placeholderIfAbsent=true']}
+              //sliderImages={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/f8de2e6aa48b29c35fdde6cd43f75d6f345be50c?placeholderIfAbsent=true', 'https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/93482f7d8fd414851a43b1567312051d084afb49?placeholderIfAbsent=true']}
             />
             <ProjectCard
               type="СНК"
@@ -47,7 +47,7 @@ export const Projects: React.FC = () => {
               images={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/5f5a67915e40eaedc736e6e383be2df4136fe6ae?placeholderIfAbsent=true']}
             />
             <ProjectCard
-              type="Исследовательский"
+              type="Лабораторный"
               status="Набор участников"
               title="Нейросеть для распознавания объектов"
               description="Разработка системы компьютерного зрения на основе нейронных сетей для распознавания объектов в режиме реального времени. Проект включает создание и обучение нейронной сети, оптимизацию алгоритмов и тестирование на реальных данных."
@@ -56,7 +56,7 @@ export const Projects: React.FC = () => {
               date="05.04.2025"
               images={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/43ee6af7106dda0ea8a254e3f7bc88454a00e3ec?placeholderIfAbsent=true']}
             />
-            <ProjectCard
+            {/* <ProjectCard
               type="СНК"
               status="В процессе"
               title="Биоразлагаемые материалы"
@@ -65,7 +65,7 @@ export const Projects: React.FC = () => {
               authors="Елена Соколова"
               date="05.04.2025"
               images={['https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/90ed728f3b7a19af92d17186d1040aa4cf45e5e4?placeholderIfAbsent=true']}
-            />
+            /> */}
           </div>
         </div>
       </div>

@@ -28,7 +28,6 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
   return (
     <div className="filter-container">
       <div className="filter-header">
-        <img src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/1ec23c084425f42d830d0e0c4b73991cf88b05c3?placeholderIfAbsent=true" alt="Filter Icon" className="filter-icon" />
         <h2 className="filter-title">Фильтры</h2>
       </div>
 
@@ -53,7 +52,6 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
           >
             <option value="">Любой</option>
             <option value="laboratory">Лабораторный</option>
-            <option value="research">Исследовательский</option>
             <option value="snk">СНК</option>
           </select>
           <img src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/2a3e85ff70776e2431b9ff5b587eec0c9e25adda?placeholderIfAbsent=true" alt="Dropdown" className="select-arrow" />

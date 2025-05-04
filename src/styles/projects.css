@@ -46,15 +46,9 @@
 
 .filter-header {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.filter-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
+  align-items: center; /* Выравниваем иконку и текст по центру */
+  gap: 8px; /* Устанавливаем расстояние между иконкой и текстом */
+  margin-bottom: 16px;
 }
 
 .filter-title {
@@ -65,7 +59,7 @@
 }
 
 .filter-section {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .filter-label {
@@ -76,16 +70,32 @@
 }
 
 .filter-input {
-  width: 100%;
+  width: 100%; /* Убедитесь, что ширина занимает всю доступную область */
   padding: 15px 12px;
   border: 1px solid #E0E0E0;
   border-radius: 12px;
-  font-size: 15px;
-  color: #999;
+  font-size: 16px; /* Увеличиваем размер текста для соответствия */
+  color: #333;
+  box-sizing: border-box; /* Учитываем отступы в ширине */
 }
 
 .filter-select {
   position: relative;
+  width: 100%; /* Устанавливаем ширину в 100% */
+}
+
+.filter-select select {
+  appearance: none; /* Убираем стандартную стрелочку */
+  -webkit-appearance: none; /* Для браузеров на основе WebKit */
+  -moz-appearance: none; /* Для Firefox */
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 15px 12px;
+  font-size: 16px;
+  color: #333;
+  background-color: #fff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .select-arrow {
@@ -101,8 +111,9 @@
 .tags-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px; /* Увеличиваем расстояние между тегами */
   margin-top: 12px;
+  width: 100%; /* Устанавливаем ширину в 100% */
 }
 
 .tag-button {
@@ -178,13 +189,11 @@
 .slider-controls {
   position: absolute;
   top: 50%; /* Центрируем стрелки по вертикали */
-  left: 0;
-  right: 0;
+  width: calc(98% - 32px);
   display: flex;
-  justify-content: space-between;
-  padding: 0 16px;
-  z-index: 2; /* Убедитесь, что стрелки выше точек */
-  transform: translateY(-50%);
+  justify-content: space-between; /* Размещаем стрелки по краям */
+  transform: translateY(-50%); /* Смещаем стрелки вверх на 50% их высоты */
+  padding: 0 16px; /* Добавляем отступы слева и справа */
 }
 
 .slider-thumbnail {
@@ -198,12 +207,11 @@
 
 .slider-dots {
   position: absolute;
-  bottom: 16px; /* Располагаем точки ниже изображения */
+  bottom: 13px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 8px;
-  z-index: 1; /* Убедитесь, что точки ниже стрелок */
 }
 
 .slider-dot {
