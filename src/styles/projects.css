@@ -164,20 +164,27 @@
 
 .project-image {
   width: 100%;
-  aspect-ratio: 2.2;
-  object-fit: contain;
+  height: auto;
+  object-fit: cover; /* Убедитесь, что изображение обрезается корректно */
+  border-radius: 12px; /* Добавьте радиус для закругления */
 }
 
 .project-slider {
   position: relative;
+  overflow: hidden; /* Убедитесь, что карусель не выходит за границы */
+  border-radius: 12px; /* Совпадает с изображением */
 }
 
 .slider-controls {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 50%; /* Центрируем стрелки по вертикали */
+  left: 0;
+  right: 0;
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 2; /* Убедитесь, что стрелки выше точек */
+  transform: translateY(-50%);
 }
 
 .slider-thumbnail {
@@ -191,11 +198,12 @@
 
 .slider-dots {
   position: absolute;
-  bottom: 13px;
+  bottom: 16px; /* Располагаем точки ниже изображения */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 8px;
+  z-index: 1; /* Убедитесь, что точки ниже стрелок */
 }
 
 .slider-dot {
