@@ -92,7 +92,7 @@ export const Register: React.FC = () => {
           />
         </div>
 
-        <div className="form-group">
+        {/* <div className="form-group">
           <label className="form-label">Номер телефона</label>
           <input
             type="tel"
@@ -102,7 +102,7 @@ export const Register: React.FC = () => {
             value={formData.phone}
             onChange={handleChange}
           />
-        </div>
+        </div> */}
 
         <div className="form-group">
           <label className="form-label">Название организации</label>
