@@ -52,7 +52,7 @@ export const ProjectModerationView: React.FC = () => {
                   <img src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/cd7ff13f9df3c53242e8d7447d1238ee63a72b96?placeholderIfAbsent=true" alt="Participant" className="participant-avatar" />
                   <div className="participant-info">
                     <span className="participant-name">Припоров Владислав</span>
-                    <span className="participant-role">Разр��ботчик</span>
+                    <span className="participant-role">Разработчик</span>
                   </div>
                 </div>
               </div>

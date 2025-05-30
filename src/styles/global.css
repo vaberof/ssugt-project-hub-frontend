@@ -193,8 +193,13 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   font-size: 15px;
-  color: var(--text-placeholder);
+  color: var(--text-primary); /* Изменяем цвет текста на черный */
   box-sizing: border-box;
+}
+
+.login-link,
+.register-button {
+  text-decoration: none; /* Убираем подчеркивание */
 }
 
 .password-input-wrapper {

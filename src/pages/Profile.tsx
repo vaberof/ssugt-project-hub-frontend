@@ -14,6 +14,8 @@ export const Profile: React.FC = () => {
     address: 'Ул. Плахотного 10, г. Новосибирск',
   });
 
+  const [visibility, setVisibility] = useState('Для всех');
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -24,8 +26,8 @@ export const Profile: React.FC = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // Здесь можно добавить логику сохранения данных, например, отправку на сервер
     console.log('Сохраненные данные:', formData);
+    console.log('Выбранная видимость:', visibility);
   };
 
   return (
@@ -70,7 +72,7 @@ export const Profile: React.FC = () => {
               name="email"
               className="info-input"
               value={formData.email}
-              disabled // Поле недоступно для редактирования
+              disabled
             />
           ) : (
             <div className="info-value">{formData.email}</div>
@@ -101,6 +103,27 @@ export const Profile: React.FC = () => {
           ) : (
             <div className="info-value">{formData.address}</div>
           )}
+
+          <div className="section-title">Мои проекты</div>
+          <div className="projects-section">
+            <div className="projects-empty-state">
+              У вас пока нет проектов. Создайте новый проект или присоединитесь к<br />
+              существующему.
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <div className="section-title">Настройки</div>
+          <div className="info-label">Видимость</div>
+          <select
+            className="info-input"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+          >
+            <option value="Для всех">Для всех</option>
+            <option value="Для себя">Для себя</option>
+          </select>
         </div>
 
         {isEditing && (
@@ -108,14 +131,6 @@ export const Profile: React.FC = () => {
             Сохранить изменения
           </button>
         )}
-
-        <div className="projects-section">
-          <div className="section-title">Мои проекты</div>
-          <div className="projects-empty-state">
-            У вас пока нет проектов. Создайте новый проект или присоединитесь к<br />
-            существующему.
-          </div>
-        </div>
       </div>
     </div>
   );

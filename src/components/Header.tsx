@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false }) => {
             <>
               <Link to="/projects/add" className="auth-button">
                 <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/32934464ca7115dbead126ee120286be3f74eb32"
+                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/plus-icon.svg"
                   alt="Add"
                   className="button-icon"
                 />
@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false }) => {
               <div className="divider" />
               <Link to="/users/1/profile/1" className="auth-button">
                 <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/26c64e2dae1ed518aa02da4c8d427d513cf7a665"
+                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/profile-icon.svg"
                   alt="Profile"
                   className="button-icon"
                 />
