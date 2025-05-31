@@ -1,11 +1,15 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 interface HeaderProps {
   isAuthenticated?: boolean;
+  isAdmin?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false }) => {
+export const Header: React.FC<HeaderProps> = ({
+  isAuthenticated = false,
+  isAdmin = false,
+}) => {
   const location = useLocation();
 
   return (
@@ -23,10 +27,20 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false }) => {
           <nav className="nav-links">
             <Link
               to="/projects"
-              className={location.pathname === '/projects' ? 'active' : ''}
+              className={location.pathname === "/projects" ? "active" : ""}
             >
               Проекты
             </Link>
+            {isAuthenticated && isAdmin && (
+              <Link
+                to="/projects/moderation"
+                className={
+                  location.pathname === "/projects/moderation" ? "active" : ""
+                }
+              >
+                Модерация проектов
+              </Link>
+            )}
             <span className="disabled">О платформе</span>
             <span className="disabled">Контакты</span>
           </nav>
@@ -54,7 +68,9 @@ export const Header: React.FC<HeaderProps> = ({ isAuthenticated = false }) => {
             </>
           ) : (
             <>
-              <Link to="/login" className="login-link">Войти</Link>
+              <Link to="/login" className="login-link">
+                Войти
+              </Link>
               <div className="divider" />
               <Link to="/register" className="register-button">
                 Регистрация

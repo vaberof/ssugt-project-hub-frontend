@@ -1,29 +1,62 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 
 export const Register: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     fullName: '',
-    phone: '',
-    organization: '',
-    address: ''
+    hasOrganisation: true,
+    organisationName: '',
+    organisationAddress: '',
   });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Пароли не совпадают');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:80/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          personalInfo: {
+            hasOrganisation: formData.hasOrganisation,
+            organisation: {
+              name: formData.organisationName,
+              address: formData.organisationAddress,
+            },
+          },
+          role: 1, // DefaultRole
+        }),
+      });
+
+      if (response.ok) {
+        navigate('/verify-email', { state: { email: formData.email } });
+      } else {
+        setError('Ошибка регистрации. Попробуйте снова.');
+      }
+    } catch (err) {
+      setError('Ошибка подключения к серверу.');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -32,9 +65,10 @@ export const Register: React.FC = () => {
       <Header />
       <form className="register-form" onSubmit={handleSubmit}>
         <div className="form-header">
-          <img src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/26c64e2dae1ed518aa02da4c8d427d513cf7a665?placeholderIfAbsent=true" alt="Register Icon" style={{ width: '50px', borderRadius: '12px' }} />
           <h1 className="form-title">Регистрация</h1>
         </div>
+
+        {error && <div className="error-message">{error}</div>}
 
         <div className="form-group">
           <label className="form-label">Почта</label>
@@ -50,22 +84,14 @@ export const Register: React.FC = () => {
 
         <div className="form-group">
           <label className="form-label">Пароль</label>
-          <div className="password-input-wrapper">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              className="form-input"
-              placeholder="Минимум 8 символов"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <span 
-              className="show-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              Показать
-            </span>
-          </div>
+          <input
+            type="password"
+            name="password"
+            className="form-input"
+            placeholder="Минимум 8 символов"
+            value={formData.password}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
@@ -92,26 +118,14 @@ export const Register: React.FC = () => {
           />
         </div>
 
-        {/* <div className="form-group">
-          <label className="form-label">Номер телефона</label>
-          <input
-            type="tel"
-            name="phone"
-            className="form-input"
-            placeholder="+7 (999) 999-99-99"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div> */}
-
         <div className="form-group">
           <label className="form-label">Название организации</label>
           <input
             type="text"
-            name="organization"
+            name="organisationName"
             className="form-input"
             placeholder="СГУГиТ"
-            value={formData.organization}
+            value={formData.organisationName}
             onChange={handleChange}
           />
         </div>
@@ -120,10 +134,10 @@ export const Register: React.FC = () => {
           <label className="form-label">Адрес организации</label>
           <input
             type="text"
-            name="address"
+            name="organisationAddress"
             className="form-input"
             placeholder="Ул. Плахотного 10, г. Новосибирск"
-            value={formData.address}
+            value={formData.organisationAddress}
             onChange={handleChange}
           />
         </div>
