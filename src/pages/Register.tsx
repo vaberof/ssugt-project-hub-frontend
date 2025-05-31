@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Header } from '../components/Header';
 
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -62,12 +61,10 @@ export const Register: React.FC = () => {
 
   return (
     <div className="register-container">
-      <Header />
       <form className="register-form" onSubmit={handleSubmit}>
         <div className="form-header">
           <h1 className="form-title">Регистрация</h1>
         </div>
-
         {error && <div className="error-message">{error}</div>}
 
         <div className="form-group">

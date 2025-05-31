@@ -1,16 +1,15 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { logout } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 
 interface HeaderProps {
   isAuthenticated?: boolean;
   isAdmin?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  isAuthenticated = false,
-  isAdmin = false,
-}) => {
-  const location = useLocation();
+export const Header: React.FC = () => {
+  const { isAuthenticated, isAdmin } = useAuth();
 
   return (
     <header className="header">
@@ -65,6 +64,15 @@ export const Header: React.FC<HeaderProps> = ({
                 />
                 Профиль
               </Link>
+              <div className="divider" />
+              <button onClick={logout} className="auth-button">
+                <img
+                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/logout-icon.svg"
+                  alt="Logout"
+                  className="button-icon"
+                />
+                Выйти
+              </button>
             </>
           ) : (
             <>

@@ -29,11 +29,11 @@ body {
 .header-content {
   display: flex;
   width: 100%;
-  max-width: 990px;
+  max-width: 1200px;
   align-items: center;
-  gap: 20px;
   justify-content: space-between;
-  flex-wrap: wrap;
+  padding: 0 20px;
+  flex-wrap: nowrap;
 }
 
 .logo-section {
@@ -98,6 +98,7 @@ body {
   align-items: center;
   gap: 10px;
   font-size: 16px;
+  white-space: nowrap;
 }
 
 .login-link {

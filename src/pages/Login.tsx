@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Header } from "../components/Header";
 import { saveToken, checkAdminStatus } from "../utils/auth";
 
 export const Login: React.FC = () => {
@@ -69,7 +68,6 @@ export const Login: React.FC = () => {
 
   return (
     <div className="login-container">
-      <Header />
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="form-header">
           <img

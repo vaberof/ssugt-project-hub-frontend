@@ -9,16 +9,15 @@ import { Moderation } from "./pages/Moderation";
 import { Profile } from "./pages/Profile";
 import { useAuth } from "./hooks/useAuth";
 import "./styles/global.css";
+import { AuthProvider } from "./context/AuthContext"; // Импортируй провайдер
+import Layout from "./components/Layout";
+
 const App: React.FC = () => {
-  const { isAuthenticated, isAdmin, refreshAuth } = useAuth();
-  React.useEffect(() => {
-    // Only refresh auth on initial mount when authenticated
-    if (isAuthenticated) {
-      refreshAuth();
-    }
-  }, []); // Remove isAuthenticated and refreshAuth from dependencies
   return (
     <Router>
+             <AuthProvider>
+        <Layout>
+
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -29,6 +28,8 @@ const App: React.FC = () => {
         <Route path="/users/:userId/profile/:profileId" element={<Profile />} />
         <Route path="/" element={<Navigate to="/projects" replace />} />
       </Routes>
+       </Layout>
+      </AuthProvider>
     </Router>
   );
 };

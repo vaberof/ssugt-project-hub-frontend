@@ -177,8 +177,14 @@ export const getOrCheckAdminStatus = async (): Promise<boolean> => {
 /**
  * Выход из системы
  */
+/**
+ * Выход из системы - очищает токен, статус админа и перенаправляет на страницу логина
+ */
 export const logout = (): void => {
+  // Удаляем токен
   removeToken();
+  // Удаляем статус админа и метку времени
   removeAdminStatus();
+  // Перенаправляем на страницу логина
   window.location.href = "/login";
 };

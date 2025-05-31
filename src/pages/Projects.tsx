@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ProjectFilter } from '../components/ProjectFilter';
 import { ProjectCard } from '../components/ProjectCard';
-import { Header } from '../components/Header';
 import '../styles/projects.css';
 
 interface Project {
@@ -81,7 +80,6 @@ export const Projects: React.FC = () => {
 
   return (
     <div className="projects-container">
-      <Header isAuthenticated={true} />
       <div className="projects-content">
         <div className="projects-grid">
           <div className="filter-column">
