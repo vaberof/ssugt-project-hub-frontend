@@ -134,7 +134,7 @@ export const checkAdminStatus = async (): Promise<boolean> => {
     const response = await fetch("http://localhost:80/auth/is-admin", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `${token}`,
       },
     });
 

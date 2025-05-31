@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   isAuthenticated,
   getOrCheckAdminStatus,
@@ -22,24 +22,28 @@ export const useAuth = (): UseAuthReturn => {
     isLoadingAdminStatus: true,
   });
 
-  const refreshAuth = async () => {
+const refreshAuth = useCallback(async () => {
     const authenticated = isAuthenticated();
-
     if (authenticated) {
       setAuthState((prev) => ({
         ...prev,
         isAuthenticated: true,
         isLoadingAdminStatus: true,
       }));
-
+      try {
       // Проверяем статус администратора
       const adminStatus = await getOrCheckAdminStatus();
-
-      setAuthState({
-        isAuthenticated: true,
+        setAuthState((prev) => ({
+          ...prev,
         isAdmin: adminStatus,
         isLoadingAdminStatus: false,
-      });
+        }));
+      } catch (error) {
+        setAuthState((prev) => ({
+          ...prev,
+          isLoadingAdminStatus: false,
+        }));
+      }
     } else {
       setAuthState({
         isAuthenticated: false,
@@ -47,7 +51,7 @@ export const useAuth = (): UseAuthReturn => {
         isLoadingAdminStatus: false,
       });
     }
-  };
+  }, []); // No dependencies needed as external functions are stable
 
   useEffect(() => {
     const initAuth = async () => {
