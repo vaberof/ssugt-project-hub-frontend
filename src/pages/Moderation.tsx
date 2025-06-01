@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Header } from '../components/Header';
 import { ModerationCard } from '../components/ModerationCard';
 import '../styles/moderation.css';
 
@@ -27,7 +26,6 @@ export const Moderation: React.FC = () => {
 
   return (
     <div className="moderation-page">
-      <Header isAuthenticated={true} />
       <div className="moderation-content">
         <div className="moderation-grid">
           <div className="filter-column">

@@ -1,11 +1,9 @@
 import React from "react";
-import { Header } from "../components/Header";
 import "../styles/profile.css";
 
 export const Profile: React.FC = () => {
   return (
     <>
-      <Header />
       <div className="profile-wrapper">
         <main className="content-card">
           <div className="profile-header">

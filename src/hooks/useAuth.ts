@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  isAuthenticated,
-  getOrCheckAdminStatus,
-  getAdminStatus,
-} from "../utils/auth";
+import { getToken, isAuthenticated as checkIsAuthenticated } from "../utils/auth";
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
@@ -13,7 +9,28 @@ interface UseAuthReturn {
 }
 
 /**
- * Хук для управления состоянием авторизации и статуса администратора
+ * Проверяет статус администратора на сервере (без кэша)
+ */
+const checkAdminStatus = async (): Promise<boolean> => {
+  const token = getToken();
+  if (!token) return false;
+  try {
+    const response = await fetch("http://localhost:80/auth/is-admin", {
+      method: "GET",
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.isAdmin || false;
+    }
+  } catch {}
+  return false;
+};
+
+/**
+ * Хук для управления состоянием авторизации и статуса администратора (всегда реальный запрос)
  */
 export const useAuth = (): UseAuthReturn => {
   const [authState, setAuthState] = useState({
@@ -22,28 +39,20 @@ export const useAuth = (): UseAuthReturn => {
     isLoadingAdminStatus: true,
   });
 
-const refreshAuth = useCallback(async () => {
-    const authenticated = isAuthenticated();
+  const refreshAuth = useCallback(async () => {
+    const authenticated = checkIsAuthenticated();
+    setAuthState({
+      isAuthenticated: authenticated,
+      isAdmin: false,
+      isLoadingAdminStatus: true,
+    });
     if (authenticated) {
-      setAuthState((prev) => ({
-        ...prev,
+      const adminStatus = await checkAdminStatus();
+      setAuthState({
         isAuthenticated: true,
-        isLoadingAdminStatus: true,
-      }));
-      try {
-      // Проверяем статус администратора
-      const adminStatus = await getOrCheckAdminStatus();
-        setAuthState((prev) => ({
-          ...prev,
         isAdmin: adminStatus,
         isLoadingAdminStatus: false,
-        }));
-      } catch (error) {
-        setAuthState((prev) => ({
-          ...prev,
-          isLoadingAdminStatus: false,
-        }));
-      }
+      });
     } else {
       setAuthState({
         isAuthenticated: false,
@@ -51,48 +60,11 @@ const refreshAuth = useCallback(async () => {
         isLoadingAdminStatus: false,
       });
     }
-  }, []); // No dependencies needed as external functions are stable
+  }, []);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const authenticated = isAuthenticated();
-
-      if (authenticated) {
-        // Сначала проверяем кэшированный статус
-        const cachedAdminStatus = getAdminStatus();
-
-        if (cachedAdminStatus !== null) {
-          // Если есть кэшированный статус, используем его
-          setAuthState({
-            isAuthenticated: true,
-            isAdmin: cachedAdminStatus,
-            isLoadingAdminStatus: false,
-          });
-        } else {
-          // Если нет кэша, загружаем с сервера
-          setAuthState((prev) => ({
-            ...prev,
-            isAuthenticated: true,
-            isLoadingAdminStatus: true,
-          }));
-          const adminStatus = await getOrCheckAdminStatus();
-          setAuthState({
-            isAuthenticated: true,
-            isAdmin: adminStatus,
-            isLoadingAdminStatus: false,
-          });
-        }
-      } else {
-        setAuthState({
-          isAuthenticated: false,
-          isAdmin: false,
-          isLoadingAdminStatus: false,
-        });
-      }
-    };
-
-    initAuth();
-  }, []);
+    refreshAuth();
+  }, [refreshAuth]);
 
   return {
     ...authState,

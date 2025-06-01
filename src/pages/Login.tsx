@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { saveToken, checkAdminStatus } from "../utils/auth";
+import { useAuth } from "../context/AuthContext"; // Добавляем импорт контекста
 
 export const Login: React.FC = () => {
+  const { refreshAuth } = useAuth(); // Получаем функцию обновления авторизации
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,11 +37,10 @@ export const Login: React.FC = () => {
         // Сохраняем токен в localStorage
         if (data.accessToken) {
           saveToken(data.accessToken);
+          // ВАЖНО: обновляем контекст авторизации!
+          await refreshAuth();
 
-          // Проверяем статус администратора
-          await checkAdminStatus();
-
-          // Перенаправляем на главную страницу проектов
+          // Навигация на проекты
           navigate("/projects");
         } else {
           setError("Ошибка получения токена авторизации");
@@ -107,7 +108,7 @@ export const Login: React.FC = () => {
               className="show-password"
               onClick={() => setShowPassword(!showPassword)}
             >
-              Показать
+              {showPassword ? "Скрыть" : "Показать"}
             </span>
           </div>
         </div>

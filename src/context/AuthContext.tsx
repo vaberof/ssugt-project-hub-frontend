@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import {
   isAuthenticated as checkIsAuthenticated,
-  getOrCheckAdminStatus,
-  getAdminStatus,
+  checkAdminStatus,
 } from "../utils/auth";
 
 interface AuthContextProps {
@@ -29,26 +28,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoadingAdminStatus: true,
   });
 
+  // Всегда только live-проверка isAdmin (без кэша!)
   const refreshAuth = useCallback(async () => {
     const authenticated = checkIsAuthenticated();
+    setAuthState({
+      isAuthenticated: authenticated,
+      isAdmin: false,
+      isLoadingAdminStatus: true,
+    });
+
     if (authenticated) {
-      setAuthState((prev) => ({
-        ...prev,
-        isAuthenticated: true,
-        isLoadingAdminStatus: true,
-      }));
       try {
-        const adminStatus = await getOrCheckAdminStatus();
-        setAuthState((prev) => ({
-          ...prev,
+        const adminStatus = await checkAdminStatus();
+        setAuthState({
+          isAuthenticated: true,
           isAdmin: adminStatus,
           isLoadingAdminStatus: false,
-        }));
+        });
       } catch {
-        setAuthState((prev) => ({
-          ...prev,
+        setAuthState({
+          isAuthenticated: true,
+          isAdmin: false,
           isLoadingAdminStatus: false,
-        }));
+        });
       }
     } else {
       setAuthState({
@@ -60,39 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const authenticated = checkIsAuthenticated();
-      if (authenticated) {
-        const cachedAdminStatus = getAdminStatus();
-        if (cachedAdminStatus !== null) {
-          setAuthState({
-            isAuthenticated: true,
-            isAdmin: cachedAdminStatus,
-            isLoadingAdminStatus: false,
-          });
-        } else {
-          setAuthState((prev) => ({
-            ...prev,
-            isAuthenticated: true,
-            isLoadingAdminStatus: true,
-          }));
-          const adminStatus = await getOrCheckAdminStatus();
-          setAuthState({
-            isAuthenticated: true,
-            isAdmin: adminStatus,
-            isLoadingAdminStatus: false,
-          });
-        }
-      } else {
-        setAuthState({
-          isAuthenticated: false,
-          isAdmin: false,
-          isLoadingAdminStatus: false,
-        });
-      }
-    };
-    initAuth();
-  }, []);
+    refreshAuth();
+  }, [refreshAuth]);
 
   return (
     <AuthContext.Provider value={{ ...authState, refreshAuth }}>

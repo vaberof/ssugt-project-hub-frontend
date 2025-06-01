@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Header } from '../components/Header';
 import { ProjectSlider } from '../components/ProjectSlider';
 import { ProjectParticipants } from '../components/ProjectParticipants';
 import '../styles/projectView.css';
@@ -8,7 +7,6 @@ import '../styles/projectView.css';
 export const ProjectView: React.FC = () => {
   return (
     <div className="project-view">
-      <Header isAuthenticated={true} />
       <div className="project-content">
         <div className="project-layout">
           <div className="sidebar">

@@ -1,11 +1,6 @@
 // Auth utilities for token management
 
 const TOKEN_KEY = "accessToken";
-const ADMIN_STATUS_KEY = "isAdmin";
-const ADMIN_CHECK_TIMESTAMP_KEY = "adminCheckTimestamp";
-
-// Время жизни кэша статуса админа (в миллисекундах) - 1 час
-const ADMIN_CACHE_DURATION = 60 * 60 * 1000;
 
 /**
  * Сохраняет токен в localStorage
@@ -81,47 +76,7 @@ export const fetchWithAuth = async (
 };
 
 /**
- * Сохраняет статус администратора в localStorage
- */
-export const saveAdminStatus = (isAdmin: boolean): void => {
-  localStorage.setItem(ADMIN_STATUS_KEY, JSON.stringify(isAdmin));
-  localStorage.setItem(ADMIN_CHECK_TIMESTAMP_KEY, Date.now().toString());
-};
-
-/**
- * Получает статус администратора из localStorage
- */
-export const getAdminStatus = (): boolean | null => {
-  const timestamp = localStorage.getItem(ADMIN_CHECK_TIMESTAMP_KEY);
-  const isAdminStr = localStorage.getItem(ADMIN_STATUS_KEY);
-
-  if (!timestamp || !isAdminStr) {
-    return null;
-  }
-
-  // Проверяем, не истек ли кэш
-  const now = Date.now();
-  const cachedTime = parseInt(timestamp, 10);
-
-  if (now - cachedTime > ADMIN_CACHE_DURATION) {
-    // Кэш истек, удаляем старые данные
-    removeAdminStatus();
-    return null;
-  }
-
-  return JSON.parse(isAdminStr);
-};
-
-/**
- * Удаляет статус администратора из localStorage
- */
-export const removeAdminStatus = (): void => {
-  localStorage.removeItem(ADMIN_STATUS_KEY);
-  localStorage.removeItem(ADMIN_CHECK_TIMESTAMP_KEY);
-};
-
-/**
- * Проверяет статус ад��инистратора на сервере
+ * Проверяет статус администратора на сервере (live, без кэша)
  */
 export const checkAdminStatus = async (): Promise<boolean> => {
   const token = getToken();
@@ -140,16 +95,10 @@ export const checkAdminStatus = async (): Promise<boolean> => {
 
     if (response.ok) {
       const data = await response.json();
-      const isAdmin = data.isAdmin || false;
-
-      // Сохраняем результат в кэш
-      saveAdminStatus(isAdmin);
-
-      return isAdmin;
+      return data.isAdmin || false;
     } else if (response.status === 401) {
       // Токен недействителен
       removeToken();
-      removeAdminStatus();
       return false;
     }
   } catch (err) {
@@ -160,31 +109,10 @@ export const checkAdminStatus = async (): Promise<boolean> => {
 };
 
 /**
- * Получает статус администратора (из кэша или с сервера)
- */
-export const getOrCheckAdminStatus = async (): Promise<boolean> => {
-  // Сначала проверяем кэш
-  const cachedStatus = getAdminStatus();
-
-  if (cachedStatus !== null) {
-    return cachedStatus;
-  }
-
-  // Если в кэше нет или кэш истек, делаем запрос
-  return await checkAdminStatus();
-};
-
-/**
- * Выход из системы
- */
-/**
- * Выход из системы - очищает токен, статус админа и перенаправляет на страницу логина
+ * Выход из системы - очищает токен
+ * (перенаправление делаем через navigate в компонентах)
  */
 export const logout = (): void => {
-  // Удаляем токен
   removeToken();
-  // Удаляем статус админа и метку времени
-  removeAdminStatus();
-  // Перенаправляем на страницу логина
-  window.location.href = "/login";
+  // Не используем window.location.href! Навигацию делаем в React-компоненте
 };

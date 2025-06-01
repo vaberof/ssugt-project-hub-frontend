@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Header } from '../components/Header';
 import { ProjectSlider } from '../components/ProjectSlider';
 import '../styles/projectModerationView.css';
 
@@ -17,7 +16,6 @@ export const ProjectModerationView: React.FC = () => {
 
   return (
     <div className="moderation-view">
-      <Header isAuthenticated={true} />
       <div className="moderation-content">
         <div className="moderation-layout">
           <div className="sidebar">

@@ -1,15 +1,18 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { logout } from "../utils/auth";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout as doLogout } from "../utils/auth";
 import { useAuth } from "../context/AuthContext";
 
-interface HeaderProps {
-  isAuthenticated?: boolean;
-  isAdmin?: boolean;
-}
-
 export const Header: React.FC = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, isLoadingAdminStatus, refreshAuth } = useAuth();
+
+  const handleLogout = async () => {
+    doLogout();
+    await refreshAuth();
+    navigate("/login");
+  };
 
   return (
     <header className="header">
@@ -30,7 +33,8 @@ export const Header: React.FC = () => {
             >
               Проекты
             </Link>
-            {isAuthenticated && isAdmin && (
+            {/* Показывать раздел "Модерация проектов" только если данные загружены и юзер админ */}
+            {!isLoadingAdminStatus && isAuthenticated && isAdmin && (
               <Link
                 to="/projects/moderation"
                 className={
@@ -41,11 +45,12 @@ export const Header: React.FC = () => {
               </Link>
             )}
             <span className="disabled">О платформе</span>
-            <span className="disabled">Контакты</span>
           </nav>
         </div>
         <div className="auth-section">
-          {isAuthenticated ? (
+          {isLoadingAdminStatus ? (
+            <span className="auth-loading">Загрузка...</span>
+          ) : isAuthenticated ? (
             <>
               <Link to="/projects/add" className="auth-button">
                 <img
@@ -65,7 +70,7 @@ export const Header: React.FC = () => {
                 Профиль
               </Link>
               <div className="divider" />
-              <button onClick={logout} className="auth-button">
+              <button onClick={handleLogout} className="auth-button">
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/logout-icon.svg"
                   alt="Logout"
