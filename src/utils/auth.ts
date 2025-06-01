@@ -86,7 +86,7 @@ export const checkAdminStatus = async (): Promise<boolean> => {
   }
 
   try {
-    const response = await fetch("http://localhost:80/auth/is-admin", {
+    const response = await fetch("http://46.149.67.92:80/auth/is-admin", {
       method: "GET",
       headers: {
         Authorization: `${token}`,
@@ -122,7 +122,7 @@ export const getUserIdFromApi = async (): Promise<number | null> => {
   if (!token) return null;
 
   try {
-    const response = await fetch("http://localhost:80/auth/issuer", {
+    const response = await fetch("http://46.149.67.92:80/auth/issuer", {
       method: "GET",
       headers: {
         Authorization: `${token}`,

@@ -64,7 +64,7 @@ export const ProjectPage: React.FC = () => {
   setLoading(true);
   setError(null);
 
-  fetch(`http://localhost:80/projects/${id}`, {
+  fetch(`http://46.149.67.92:80/projects/${id}`, {
     headers: {
       "Content-Type": "application/json",
       ...(getToken() ? { Authorization: `${getToken()}` } : {}),
