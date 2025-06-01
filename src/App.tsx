@@ -11,6 +11,7 @@ import { Profile } from "./pages/Profile";
 import "./styles/global.css";
 import { AuthProvider } from "./context/AuthContext"; // Импортируй провайдер
 import Layout from "./components/Layout";
+import { ProjectView } from "./pages/ProjectView";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectView />} />
         <Route path="/projects/add" element={<CreateProject />} />
         <Route
           path="/projects/moderation"
@@ -32,7 +34,7 @@ const App: React.FC = () => {
             </ProtectedRouteAdmin>
             }
         />
-        <Route path="/users/:userId/profile/:profileId" element={<Profile />} />
+        <Route path="/users/:userId" element={<Profile />} />
         <Route path="/" element={<Navigate to="/projects" replace />} />
       </Routes>
        </Layout>

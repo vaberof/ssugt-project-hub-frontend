@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout as doLogout } from "../utils/auth";
 import { useAuth } from "../context/AuthContext";
+import { getUserIdFromApi } from "../utils/auth"; // Важно!
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -13,6 +14,40 @@ export const Header: React.FC = () => {
     await refreshAuth();
     navigate("/login");
   };
+
+  // Обработчик для профиля (работает и для обычного клика, и для "открыть в новой вкладке")
+  const handleGoToProfile = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const userId = await getUserIdFromApi();
+    if (userId) {
+      navigate(`/users/${userId}`);
+    } else {
+      navigate("/login");
+    }
+  };
+
+  // SVG-компоненты с белым цветом
+  const IconAdd = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+  const IconProfile = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 8-6 8-6s8 2 8 6"/>
+    </svg>
+  );
+  const IconLogout = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+      <path d="M13 5v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" />
+    </svg>
+  );
 
   return (
     <header className="header">
@@ -53,30 +88,30 @@ export const Header: React.FC = () => {
           ) : isAuthenticated ? (
             <>
               <Link to="/projects/add" className="auth-button">
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/plus-icon.svg"
-                  alt="Add"
-                  className="button-icon"
-                />
-                Добавить проект
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <IconAdd />
+                  Добавить проект
+                </span>
               </Link>
               <div className="divider" />
-              <Link to="/users/1/profile/1" className="auth-button">
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/profile-icon.svg"
-                  alt="Profile"
-                  className="button-icon"
-                />
-                Профиль
-              </Link>
+              {/* Кнопка для перехода в профиль */}
+              <a
+                href="#"
+                className="auth-button"
+                onClick={handleGoToProfile}
+                // title="Открыть профиль"
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <IconProfile />
+                  Профиль
+                </span>
+              </a>
               <div className="divider" />
               <button onClick={handleLogout} className="auth-button">
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/logout-icon.svg"
-                  alt="Logout"
-                  className="button-icon"
-                />
-                Выйти
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <IconLogout />
+                  Выйти
+                </span>
               </button>
             </>
           ) : (

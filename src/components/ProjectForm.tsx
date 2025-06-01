@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { FileUpload } from './FileUpload';
+import React, { useState, useEffect } from "react";
+import { FileUpload } from "./FileUpload";
 import { getUserIdFromApi, getToken } from "../utils/auth";
+import { useNavigate } from "react-router-dom"; // <--- добавь этот импорт
 
 const collaboratorRoles = [
   "Руководитель",
@@ -11,7 +12,7 @@ const collaboratorRoles = [
   "Тестировщик",
   "Менеджер продукта",
   "Бизнес-аналитик",
-  "Другое"
+  "Другое",
 ] as const;
 
 type CollaboratorRole = typeof collaboratorRoles[number];
@@ -22,133 +23,187 @@ interface ProjectTag {
 
 interface CollaboratorDraft {
   email: string;
-  role: CollaboratorRole;
+  role: CollaboratorRole | "";
   user?: {
     id: number;
     email: string;
     fullName: string;
   };
+  isCreator?: boolean; // Важно!
 }
 
 export const ProjectForm: React.FC = () => {
-  const [projectType, setProjectType] = useState<'snk' | 'laboratory'>('laboratory');
+  const navigate = useNavigate(); // <--- инициализация хука
+
+  const [projectType, setProjectType] = useState<"snk" | "laboratory">("laboratory");
   const [tags, setTags] = useState<ProjectTag[]>([]);
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
 
   const [collaborators, setCollaborators] = useState<CollaboratorDraft[]>([]);
-  const [newColEmail, setNewColEmail] = useState('');
-  const [newColRole, setNewColRole] = useState<CollaboratorRole | ''>('');
-  const [colSearchError, setColSearchError] = useState('');
+  const [newColEmail, setNewColEmail] = useState("");
+  const [newColRole, setNewColRole] = useState<CollaboratorRole | "">("");
+  const [colSearchError, setColSearchError] = useState("");
   const [colLoading, setColLoading] = useState(false);
 
   // --- Form fields ---
-  const [title, setTitle] = useState('');
-  const [object, setObject] = useState('');
-  const [summary, setSummary] = useState('');
-  const [cost, setCost] = useState('');
-  const [developingStage, setDevelopingStage] = useState('');
-  const [realizationTerm, setRealizationTerm] = useState('');
-  const [applicationScope, setApplicationScope] = useState('');
-  const [fundingSource, setFundingSource] = useState('');
-  const [teamSize, setTeamSize] = useState('');
+  const [title, setTitle] = useState("");
+  const [object, setObject] = useState("");
+  const [summary, setSummary] = useState("");
+  const [cost, setCost] = useState("");
+  const [developingStage, setDevelopingStage] = useState("");
+  const [realizationTerm, setRealizationTerm] = useState("");
+  const [applicationScope, setApplicationScope] = useState("");
+  const [fundingSource, setFundingSource] = useState("");
+  const [teamSize, setTeamSize] = useState("");
 
   // СНК
-  const [researchGoals, setResearchGoals] = useState('');
-  const [methodology, setMethodology] = useState('');
-  const [potentialImpact, setPotentialImpact] = useState('');
+  const [researchGoals, setResearchGoals] = useState("");
+  const [methodology, setMethodology] = useState("");
+  const [potentialImpact, setPotentialImpact] = useState("");
   // Лабораторный
-  const [laboratoryName, setLaboratoryName] = useState('');
-  const [problematic, setProblematic] = useState('');
-  const [solution, setSolution] = useState('');
-  const [functionality, setFunctionality] = useState('');
-  const [technologyStack, setTechnologyStack] = useState('');
+  const [laboratoryName, setLaboratoryName] = useState("");
+  const [problematic, setProblematic] = useState("");
+  const [solution, setSolution] = useState("");
+  const [functionality, setFunctionality] = useState("");
+  const [technologyStack, setTechnologyStack] = useState("");
   const [advantages, setAdvantages] = useState<string[]>([]);
-  const [newAdvantage, setNewAdvantage] = useState('');
-  const [testResults, setTestResults] = useState('');
-  const [deploymentPlan, setDeploymentPlan] = useState('');
+  const [newAdvantage, setNewAdvantage] = useState("");
+  const [testResults, setTestResults] = useState("");
+  const [deploymentPlan, setDeploymentPlan] = useState("");
+
+  // Добавление себя как участника при инициализации
+  useEffect(() => {
+    async function fetchSelf() {
+      const token = getToken();
+      const userId = await getUserIdFromApi();
+      if (!userId) return;
+      // Получаем пользователя по userId через /users?ids=...
+      const resp = await fetch(`http://localhost:80/users?ids=${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `${token}` } : {}),
+        },
+      });
+      const data = await resp.json();
+      if (data && data.users && data.users[0]) {
+        const user = data.users[0];
+        setCollaborators((prev) => [
+          {
+            email: user.email,
+            role: "", // роль не выбрана сразу
+            user: {
+              id: user.id,
+              email: user.email,
+              fullName: user.fullName,
+            },
+            isCreator: true, // <--- Это вы!
+          },
+          ...prev,
+        ]);
+      }
+    }
+    fetchSelf();
+    // eslint-disable-next-line
+  }, []);
 
   // Tags/advantages logic
   const handleAddTag = () => {
-    if (newTag.trim() && !tags.find(t => t.name === newTag.trim())) {
+    if (newTag.trim() && !tags.find((t) => t.name === newTag.trim())) {
       setTags([...tags, { name: newTag.trim() }]);
-      setNewTag('');
+      setNewTag("");
     }
   };
   const handleRemoveTag = (idx: number) => setTags(tags.filter((_, i) => i !== idx));
   const handleAddAdvantage = () => {
     if (newAdvantage.trim() && !advantages.includes(newAdvantage.trim())) {
       setAdvantages([...advantages, newAdvantage.trim()]);
-      setNewAdvantage('');
+      setNewAdvantage("");
     }
   };
-  const handleRemoveAdvantage = (idx: number) => setAdvantages(advantages.filter((_, i) => i !== idx));
+  const handleRemoveAdvantage = (idx: number) =>
+    setAdvantages(advantages.filter((_, i) => i !== idx));
 
   // Collaborators
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
       const resp = await fetch(`http://localhost:80/users/${encodeURIComponent(email)}`, {
-        headers: token ? { 'Authorization': `${token}` } : {}
+        headers: token ? { Authorization: `${token}` } : {},
       });
       if (!resp.ok) throw new Error();
       const data = await resp.json();
       return {
         id: data.user.id,
         email: data.user.email,
-        fullName: data.user.fullName
+        fullName: data.user.fullName,
       };
     } catch {
       return null;
     }
   }
   const handleAddCollaborator = async () => {
-    setColSearchError('');
+    setColSearchError("");
     if (!newColEmail || !newColRole) {
-      setColSearchError('Укажите email и роль');
+      setColSearchError("Укажите email и роль");
       return;
     }
-    if (collaborators.find(c => c.email === newColEmail)) {
-      setColSearchError('Этот email уже добавлен');
+    if (collaborators.find((c) => c.email === newColEmail)) {
+      setColSearchError("Этот email уже добавлен");
       return;
     }
     setColLoading(true);
     const user = await fetchUserByEmail(newColEmail);
     setColLoading(false);
     if (!user) {
-      setColSearchError('Пользователь не найден');
+      setColSearchError("Пользователь не найден");
       return;
     }
-    setCollaborators([...collaborators, {
-      email: newColEmail,
-      role: newColRole,
-      user
-    }]);
-    setNewColEmail('');
-    setNewColRole('');
+    setCollaborators([
+      ...collaborators,
+      {
+        email: newColEmail,
+        role: newColRole,
+        user,
+        isCreator: false,
+      },
+    ]);
+    setNewColEmail("");
+    setNewColRole("");
   };
-  const handleRemoveCollaborator = (idx: number) => setCollaborators(collaborators.filter((_, i) => i !== idx));
+  const handleRemoveCollaborator = (idx: number) => {
+    // Нельзя удалить себя
+    if (collaborators[idx].isCreator) return;
+    setCollaborators(collaborators.filter((_, i) => i !== idx));
+  };
+
+  // Обновление роли участника
+  const handleChangeRole = (idx: number, value: CollaboratorRole | "") => {
+    setCollaborators((prev) =>
+      prev.map((c, i) => (i === idx ? { ...c, role: value } : c))
+    );
+  };
 
   // --- Main Submit ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = getToken();
     if (!token) {
-      alert('Вы не авторизованы');
+      alert("Вы не авторизованы");
       return;
     }
 
     // Получаем userId текущего пользователя
     const userId = await getUserIdFromApi();
     if (!userId) {
-      alert('Не удалось получить userId (issuer) из токена');
+      alert("Не удалось получить userId (issuer) из токена");
       return;
     }
 
     const collaboratorsToSend = collaborators
-      .filter(col => col.user)
-      .map(col => ({
+      .filter((col) => col.user)
+      .map((col) => ({
         userId: col.user!.id,
-        role: col.role
+        role: col.role,
       }));
 
     let attributes: any = {
@@ -159,19 +214,19 @@ export const ProjectForm: React.FC = () => {
       developingStage,
       realizationTerm,
       applicationScope,
-      tags: tags.map(t => t.name),
+      tags: tags.map((t) => t.name),
       fundingSource,
       teamSize: parseInt(teamSize) || 0,
     };
 
-    if (projectType === 'snk') {
+    if (projectType === "snk") {
       attributes = {
         ...attributes,
         researchGoals,
         methodology,
-        potentialImpact
+        potentialImpact,
       };
-    } else if (projectType === 'laboratory') {
+    } else if (projectType === "laboratory") {
       attributes = {
         ...attributes,
         laboratoryName,
@@ -181,34 +236,40 @@ export const ProjectForm: React.FC = () => {
         technologyStack,
         advantages,
         testResults,
-        deploymentPlan
+        deploymentPlan,
       };
     }
 
-    const typeId = projectType === 'snk' ? 1 : 2;
+    const typeId = projectType === "snk" ? 1 : 2;
 
     // --- ВАЖНО: теперь в payload добавляем userId ---
     const payload = {
-      userId,           // <- отправляем userId как поле (для Go)
+      userId, // <- отправляем userId как поле (для Go)
       type: typeId,
       attributes,
       collaborators: collaboratorsToSend,
     };
 
     try {
-      const resp = await fetch('http://localhost:80/projects', {
-        method: 'POST',
+      const resp = await fetch("http://localhost:80/projects", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${token}`
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
         },
         body: JSON.stringify(payload),
       });
-      if (!resp.ok) throw new Error('Ошибка при создании проекта');
-      alert('Проект успешно создан!');
+      if (!resp.ok) throw new Error("Ошибка при создании проекта");
+      alert("Проект успешно создан!");
       // reset form if нужно
+      const data = await resp.json(); // <--
+       if (data && data.id) {
+        navigate(`/projects/${data.id}`);
+      } else {
+        alert("Проект создан, но не удалось получить id проекта");
+      }
     } catch (e) {
-      alert('Не удалось создать проект');
+      alert("Не удалось создать проект");
     }
   };
 
@@ -219,25 +280,25 @@ export const ProjectForm: React.FC = () => {
       <section className="form-section">
         <h2 className="section-title">Тип проекта</h2>
         <div className="project-type-options">
-          <label className={`type-option ${projectType === 'snk' ? 'selected' : ''}`}>
+          <label className={`type-option ${projectType === "snk" ? "selected" : ""}`}>
             <input
               type="radio"
               name="projectType"
               value="snk"
-              checked={projectType === 'snk'}
-              onChange={() => setProjectType('snk')}
+              checked={projectType === "snk"}
+              onChange={() => setProjectType("snk")}
               className="type-radio"
             />
             <span className="radio-circle" />
             <span>СНК</span>
           </label>
-          <label className={`type-option ${projectType === 'laboratory' ? 'selected' : ''}`}>
+          <label className={`type-option ${projectType === "laboratory" ? "selected" : ""}`}>
             <input
               type="radio"
               name="projectType"
               value="laboratory"
-              checked={projectType === 'laboratory'}
-              onChange={() => setProjectType('laboratory')}
+              checked={projectType === "laboratory"}
+              onChange={() => setProjectType("laboratory")}
               className="type-radio"
             />
             <span className="radio-circle" />
@@ -251,12 +312,7 @@ export const ProjectForm: React.FC = () => {
         <h2 className="section-title">Общая информация</h2>
         <div className="form-group">
           <label className="form-label">Название проекта</label>
-          <input
-            type="text"
-            className="form-input"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-          />
+          <input type="text" className="form-input" value={title} onChange={e => setTitle(e.target.value)} />
         </div>
         <div className="form-group">
           <label className="form-label">Объект исследования/разработки</label>
@@ -264,11 +320,7 @@ export const ProjectForm: React.FC = () => {
         </div>
         <div className="form-group">
           <label className="form-label">Описание проекта</label>
-          <textarea
-            className="form-textarea"
-            value={summary}
-            onChange={e => setSummary(e.target.value)}
-          />
+          <textarea className="form-textarea" value={summary} onChange={e => setSummary(e.target.value)} />
         </div>
         <div className="form-row">
           <div className="form-group half-width">
@@ -301,7 +353,7 @@ export const ProjectForm: React.FC = () => {
       </section>
 
       {/* Динамические секции по типу проекта */}
-      {projectType === 'snk' && (
+      {projectType === "snk" && (
         <section className="form-section">
           <h2 className="section-title">Атрибуты СНК-проекта</h2>
           <div className="form-group">
@@ -318,7 +370,7 @@ export const ProjectForm: React.FC = () => {
           </div>
         </section>
       )}
-      {projectType === 'laboratory' && (
+      {projectType === "laboratory" && (
         <section className="form-section">
           <h2 className="section-title">Атрибуты лабораторного проекта</h2>
           <div className="form-group">
@@ -343,11 +395,13 @@ export const ProjectForm: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Преимущества решения</label>
-            <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
               <input type="text" className="form-input" value={newAdvantage} onChange={e => setNewAdvantage(e.target.value)} />
-              <button type="button" className="add-tag-button" onClick={handleAddAdvantage}>Добавить</button>
+              <button type="button" className="add-tag-button" onClick={handleAddAdvantage}>
+                Добавить
+              </button>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {advantages.map((adv, idx) => (
                 <div key={idx} className="tag-item">
                   <span>{adv}</span>
@@ -384,11 +438,7 @@ export const ProjectForm: React.FC = () => {
             value={newTag}
             onChange={e => setNewTag(e.target.value)}
           />
-          <button
-            type="button"
-            className="add-tag-button"
-            onClick={handleAddTag}
-          >
+          <button type="button" className="add-tag-button" onClick={handleAddTag}>
             Добавить
           </button>
         </div>
@@ -396,11 +446,7 @@ export const ProjectForm: React.FC = () => {
           {tags.map((tag, index) => (
             <div key={index} className="tag-item">
               <span>{tag.name}</span>
-              <button
-                type="button"
-                className="remove-tag-button"
-                onClick={() => handleRemoveTag(index)}
-              >
+              <button type="button" className="remove-tag-button" onClick={() => handleRemoveTag(index)}>
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/3293b9ebf58506465abf88390a3ab44c4d6891ce?placeholderIfAbsent=true"
                   alt="Remove"
@@ -431,12 +477,19 @@ export const ProjectForm: React.FC = () => {
             disabled={colLoading}
           >
             <option value="">Выберите роль</option>
-            {collaboratorRoles.map(r => (
-              <option key={r} value={r}>{r}</option>
+            {collaboratorRoles.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
             ))}
           </select>
-          <button type="button" className="add-participant-button" onClick={handleAddCollaborator} disabled={colLoading}>
-            {colLoading ? 'Поиск...' : 'Добавить'}
+          <button
+            type="button"
+            className="add-participant-button"
+            onClick={handleAddCollaborator}
+            disabled={colLoading}
+          >
+            {colLoading ? "Поиск..." : "Добавить"}
           </button>
           {colSearchError && <span className="error-message">{colSearchError}</span>}
         </div>
@@ -445,15 +498,33 @@ export const ProjectForm: React.FC = () => {
             <div key={idx} className="participant-item">
               <div className="participant-info">
                 <span className="participant-name">{col.user?.fullName || col.email}</span>
-                <span className="participant-role">{col.role}</span>
+                <span className="participant-role">
+                  <select
+                    value={col.role}
+                    disabled={col.isCreator ? false : false} // все роли можно выбрать
+                    onChange={e => handleChangeRole(idx, e.target.value as CollaboratorRole)}
+                  >
+                    <option value="">Выберите роль</option>
+                    {collaboratorRoles.map(r => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </span>
               </div>
-              <button type="button" className="remove-participant-button" onClick={() => handleRemoveCollaborator(idx)}>
-                <img
-                  src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/3293b9ebf58506465abf88390a3ab44c4d6891ce?placeholderIfAbsent=true"
-                  alt="Remove"
-                  className="remove-icon"
-                />
-              </button>
+              {/* Нельзя удалить себя */}
+              {!col.isCreator && (
+                <button
+                  type="button"
+                  className="remove-participant-button"
+                  onClick={() => handleRemoveCollaborator(idx)}
+                >
+                  <img
+                    src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/3293b9ebf58506465abf88390a3ab44c4d6891ce?placeholderIfAbsent=true"
+                    alt="Remove"
+                    className="remove-icon"
+                  />
+                </button>
+              )}
             </div>
           ))}
         </div>

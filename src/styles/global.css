@@ -69,11 +69,16 @@ body {
 .auth-button a {
   text-decoration: none; /* Убираем подчеркивание */
   color: inherit; /* Наследуем цвет текста */
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .nav-links a:focus,
 .auth-button:focus {
-  outline: none; /* Убираем выделение */
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .nav-link {
@@ -130,6 +135,11 @@ body {
   align-items: center;
   gap: 8px;
   text-decoration: none;
+    border: none;        /* <--- добавь это */
+  outline: none;       /* <--- и это */
+  box-shadow: none; 
+    transition: background 0.2s; /* для плавности, если надо */
+
 }
 
 .button-icon {
