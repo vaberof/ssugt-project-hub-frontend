@@ -74,21 +74,24 @@ export const ProjectForm: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // --- Добавление себя как участника ---
-  useEffect(() => {
-    async function fetchSelf() {
-      const token = getToken();
-      const userId = await getUserIdFromApi();
-      if (!userId) return;
-      const resp = await fetch(`http://46.149.67.92:80/users?ids=${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `${token}` } : {}),
-        },
-      });
-      const data = await resp.json();
-      if (data && data.users && data.users[0]) {
-        const user = data.users[0];
-        setCollaborators((prev) => [
+ useEffect(() => {
+  async function fetchSelf() {
+    const token = getToken();
+    const userId = await getUserIdFromApi();
+    if (!userId) return;
+    const resp = await fetch(`http://46.149.67.92:80/users?ids=${userId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `${token}` } : {}),
+      },
+    });
+    const data = await resp.json();
+    if (data && data.users && data.users[0]) {
+      const user = data.users[0];
+      setCollaborators((prev) => {
+        // === ПРОВЕРКА ===
+        if (prev.some((c) => c.email === user.email)) return prev;
+        return [
           {
             email: user.email,
             role: "",
@@ -100,12 +103,14 @@ export const ProjectForm: React.FC = () => {
             isCreator: true,
           },
           ...prev,
-        ]);
-      }
+        ];
+      });
     }
-    fetchSelf();
-    // eslint-disable-next-line
-  }, []);
+  }
+  fetchSelf();
+  // eslint-disable-next-line
+}, []);
+
 
   // --- Tags ---
   const handleAddTag = () => {
