@@ -32,7 +32,6 @@ const App: React.FC = () => {
             </ProtectedRouteAdmin>
             }
         />
-        <Route path="/projects/moderation" element={<Moderation />} />
         <Route path="/users/:userId/profile/:profileId" element={<Profile />} />
         <Route path="/" element={<Navigate to="/projects" replace />} />
       </Routes>

@@ -116,3 +116,24 @@ export const logout = (): void => {
   removeToken();
   // Не используем window.location.href! Навигацию делаем в React-компоненте
 };
+
+export const getUserIdFromApi = async (): Promise<number | null> => {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    const response = await fetch("http://localhost:80/auth/issuer", {
+      method: "GET",
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    // data.issuer — int
+    return typeof data.issuer === "number" ? data.issuer : null;
+  } catch {
+    return null;
+  }
+};
