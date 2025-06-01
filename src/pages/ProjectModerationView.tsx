@@ -20,7 +20,7 @@ export const ProjectModerationView: React.FC = () => {
         <div className="moderation-layout">
           <div className="sidebar">
             <div className="back-link">
-              <Link to="/projects/moderation" className="back-button">
+              <Link to="/moderation/projects" className="back-button">
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/a0735ba21429b97369b57045a0d396d5380a82af?placeholderIfAbsent=true"
                   alt="Back"

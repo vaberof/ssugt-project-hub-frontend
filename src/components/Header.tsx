@@ -53,13 +53,22 @@ export const Header: React.FC = () => {
     <header className="header">
       <div className="header-content">
         <div className="logo-section">
-          <div className="logo-wrapper">
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/f57eb47aa86a5087ae2a1d4ed54a5f6df6743982?placeholderIfAbsent=true"
-              alt="Logo"
-              className="logo-image"
-            />
-            <span>Проекты СГУГиТ</span>
+  <div
+    className="logo-wrapper"
+    style={{ cursor: "pointer" }}
+    onClick={() => navigate("/projects")}
+    tabIndex={0}
+    onKeyDown={e => {
+      if (e.key === "Enter" || e.key === " ") navigate("/projects");
+    }}
+    title="На главную страницу проектов"
+  >
+    <img
+      src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/f57eb47aa86a5087ae2a1d4ed54a5f6df6743982?placeholderIfAbsent=true"
+      alt="Logo"
+      className="logo-image"
+    />
+    <span>Проекты СГУГиТ</span>
           </div>
           <nav className="nav-links">
             <Link
@@ -71,9 +80,9 @@ export const Header: React.FC = () => {
             {/* Показывать раздел "Модерация проектов" только если данные загружены и юзер админ */}
             {!isLoadingAdminStatus && isAuthenticated && isAdmin && (
               <Link
-                to="/projects/moderation"
+                to="/moderation/projects"
                 className={
-                  location.pathname === "/projects/moderation" ? "active" : ""
+                  location.pathname === "/moderation/projects" ? "active" : ""
                 }
               >
                 Модерация проектов

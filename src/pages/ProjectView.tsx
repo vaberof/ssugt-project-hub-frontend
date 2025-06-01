@@ -127,10 +127,6 @@ export const ProjectView: React.FC = () => {
   if (loading || userIdLoading) return <div style={{ padding: 40 }}>Загрузка...</div>;
   if (error || !project) return <div style={{ color: "red", padding: 40 }}>{error || "Проект не найден"}</div>;
 
-  // ---- ВАЖНО: тут выводим в консоль!
-  console.log("project.userId:", project.userId, typeof project.userId);
-  console.log("currentUserId:", currentUserId, typeof currentUserId);
-
   const { attributes, collaborators = [], files, type } = project;
 
   const tags = (attributes.tags ?? []).filter(Boolean);

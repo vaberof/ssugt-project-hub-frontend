@@ -27,7 +27,7 @@ const App: React.FC = () => {
         <Route path="/projects/:id" element={<ProjectView />} />
         <Route path="/projects/add" element={<CreateProject />} />
         <Route
-          path="/projects/moderation"
+          path="/moderation/projects"
           element={
           <ProtectedRouteAdmin>
             <Moderation />

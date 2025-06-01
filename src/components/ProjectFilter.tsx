@@ -7,6 +7,9 @@ interface ProjectFilterProps {
   onTypeChange: (type: string) => void;
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
+  tagsInput: string;
+  onTagsInputChange: (val: string) => void;
+  onSearchClick: () => void;
 }
 
 export const ProjectFilter: React.FC<ProjectFilterProps> = ({
@@ -15,14 +18,30 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
   selectedType,
   onTypeChange,
   selectedTags,
-  onTagsChange
+  onTagsChange,
+  tagsInput,
+  onTagsInputChange,
+  onSearchClick
 }) => {
+  const predefinedTags = [
+    'Программирование', 'Дизайн', 'Физика',
+    'Математика', 'Химия', 'Биология',
+    'Экология', 'Робототехника'
+  ];
+
   const handleTagClick = (tag: string) => {
+    let newTags = [...selectedTags];
     if (selectedTags.includes(tag)) {
-      onTagsChange(selectedTags.filter(t => t !== tag));
+      newTags = selectedTags.filter(t => t !== tag);
     } else {
-      onTagsChange([...selectedTags, tag]);
+      newTags = [...selectedTags, tag];
     }
+    onTagsChange(newTags);
+    onTagsInputChange(newTags.join(', '));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onTagsInputChange(e.target.value);
   };
 
   return (
@@ -63,14 +82,17 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
         <input
           type="text"
           className="filter-input"
-          placeholder="Поиск тегов..."
+          placeholder="Химия, Биология..."
+          value={tagsInput}
+          onChange={handleInputChange}
         />
         <div className="tags-grid">
-          {['Программирование', 'Дизайн', 'Физика', 'Математика', 'Химия', 'Биология', 'Экология', 'Робототехника'].map((tag) => (
+          {predefinedTags.map((tag) => (
             <button
               key={tag}
               className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
               onClick={() => handleTagClick(tag)}
+              type="button"
             >
               {tag}
             </button>
@@ -78,7 +100,7 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
         </div>
       </div>
 
-      <button className="search-button">
+      <button className="search-button" type="button" onClick={onSearchClick}>
         <img src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/0b8d2aaeb2cec9dafb42d253715dcb7c04caa773?placeholderIfAbsent=true" alt="Search" className="search-icon" />
         <span>Найти</span>
       </button>
