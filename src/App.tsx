@@ -12,6 +12,7 @@ import "./styles/global.css";
 import { AuthProvider } from "./context/AuthContext"; // Импортируй провайдер
 import Layout from "./components/Layout";
 import { ProjectView } from "./pages/ProjectView";
+import { ProjectModerationView } from "./pages/ProjectModerationView";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,15 @@ const App: React.FC = () => {
             </ProtectedRouteAdmin>
             }
         />
+        <Route
+          path="/moderation/projects/:id"
+          element={
+          <ProtectedRouteAdmin>
+            <ProjectModerationView  />
+            </ProtectedRouteAdmin>
+            }
+        />
+        
         <Route path="/users/:userId" element={<Profile />} />
         <Route path="/" element={<Navigate to="/projects" replace />} />
       </Routes>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { FileUpload } from "./FileUpload";
+import React, { useState, useEffect, useRef } from "react";
 import { getUserIdFromApi, getToken } from "../utils/auth";
-import { useNavigate } from "react-router-dom"; // <--- добавь этот импорт
+import { useNavigate } from "react-router-dom";
 
 const collaboratorRoles = [
   "Руководитель",
@@ -29,16 +28,16 @@ interface CollaboratorDraft {
     email: string;
     fullName: string;
   };
-  isCreator?: boolean; // Важно!
+  isCreator?: boolean;
 }
 
 export const ProjectForm: React.FC = () => {
-  const navigate = useNavigate(); // <--- инициализация хука
+  const navigate = useNavigate();
 
+  // Стейты формы
   const [projectType, setProjectType] = useState<"snk" | "laboratory">("laboratory");
   const [tags, setTags] = useState<ProjectTag[]>([]);
   const [newTag, setNewTag] = useState("");
-
   const [collaborators, setCollaborators] = useState<CollaboratorDraft[]>([]);
   const [newColEmail, setNewColEmail] = useState("");
   const [newColRole, setNewColRole] = useState<CollaboratorRole | "">("");
@@ -55,7 +54,6 @@ export const ProjectForm: React.FC = () => {
   const [applicationScope, setApplicationScope] = useState("");
   const [fundingSource, setFundingSource] = useState("");
   const [teamSize, setTeamSize] = useState("");
-
   // СНК
   const [researchGoals, setResearchGoals] = useState("");
   const [methodology, setMethodology] = useState("");
@@ -71,13 +69,16 @@ export const ProjectForm: React.FC = () => {
   const [testResults, setTestResults] = useState("");
   const [deploymentPlan, setDeploymentPlan] = useState("");
 
-  // Добавление себя как участника при инициализации
+  // --- Файлы ---
+  const [projectFiles, setProjectFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // --- Добавление себя как участника ---
   useEffect(() => {
     async function fetchSelf() {
       const token = getToken();
       const userId = await getUserIdFromApi();
       if (!userId) return;
-      // Получаем пользователя по userId через /users?ids=...
       const resp = await fetch(`http://localhost:80/users?ids=${userId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -90,13 +91,13 @@ export const ProjectForm: React.FC = () => {
         setCollaborators((prev) => [
           {
             email: user.email,
-            role: "", // роль не выбрана сразу
+            role: "",
             user: {
               id: user.id,
               email: user.email,
               fullName: user.fullName,
             },
-            isCreator: true, // <--- Это вы!
+            isCreator: true,
           },
           ...prev,
         ]);
@@ -106,7 +107,7 @@ export const ProjectForm: React.FC = () => {
     // eslint-disable-next-line
   }, []);
 
-  // Tags/advantages logic
+  // --- Tags ---
   const handleAddTag = () => {
     if (newTag.trim() && !tags.find((t) => t.name === newTag.trim())) {
       setTags([...tags, { name: newTag.trim() }]);
@@ -114,6 +115,8 @@ export const ProjectForm: React.FC = () => {
     }
   };
   const handleRemoveTag = (idx: number) => setTags(tags.filter((_, i) => i !== idx));
+
+  // --- Advantages ---
   const handleAddAdvantage = () => {
     if (newAdvantage.trim() && !advantages.includes(newAdvantage.trim())) {
       setAdvantages([...advantages, newAdvantage.trim()]);
@@ -123,7 +126,7 @@ export const ProjectForm: React.FC = () => {
   const handleRemoveAdvantage = (idx: number) =>
     setAdvantages(advantages.filter((_, i) => i !== idx));
 
-  // Collaborators
+  // --- Collaborators ---
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
@@ -171,16 +174,27 @@ export const ProjectForm: React.FC = () => {
     setNewColRole("");
   };
   const handleRemoveCollaborator = (idx: number) => {
-    // Нельзя удалить себя
     if (collaborators[idx].isCreator) return;
     setCollaborators(collaborators.filter((_, i) => i !== idx));
   };
-
-  // Обновление роли участника
   const handleChangeRole = (idx: number, value: CollaboratorRole | "") => {
     setCollaborators((prev) =>
       prev.map((c, i) => (i === idx ? { ...c, role: value } : c))
     );
+  };
+
+  // --- File Upload ---
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    const images = selected.filter(f =>
+      ["image/jpeg", "image/png", "image/jpg"].includes(f.type)
+    );
+    const totalSize = images.reduce((acc, f) => acc + f.size, 0);
+    if (totalSize > 50 * 1024 * 1024) {
+      alert("Суммарный размер файлов не должен превышать 50 МБ");
+      return;
+    }
+    setProjectFiles(images);
   };
 
   // --- Main Submit ---
@@ -192,7 +206,6 @@ export const ProjectForm: React.FC = () => {
       return;
     }
 
-    // Получаем userId текущего пользователя
     const userId = await getUserIdFromApi();
     if (!userId) {
       alert("Не удалось получить userId (issuer) из токена");
@@ -242,9 +255,8 @@ export const ProjectForm: React.FC = () => {
 
     const typeId = projectType === "snk" ? 1 : 2;
 
-    // --- ВАЖНО: теперь в payload добавляем userId ---
     const payload = {
-      userId, // <- отправляем userId как поле (для Go)
+      userId,
       type: typeId,
       attributes,
       collaborators: collaboratorsToSend,
@@ -260,10 +272,26 @@ export const ProjectForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
       if (!resp.ok) throw new Error("Ошибка при создании проекта");
+      const data = await resp.json();
+
+      // === Загрузка файлов ===
+      if (data && data.id && projectFiles.length > 0) {
+        const formData = new FormData();
+        for (let file of projectFiles) {
+          formData.append("files", file);
+        }
+        const filesResp = await fetch(`http://localhost:80/projects/${data.id}/files`, {
+          method: "POST",
+          headers: { Authorization: `${token}` },
+          body: formData,
+        });
+        if (!filesResp.ok) {
+          alert("Проект создан, но файлы не загрузились!");
+        }
+      }
+
       alert("Проект успешно создан!");
-      // reset form if нужно
-      const data = await resp.json(); // <--
-       if (data && data.id) {
+      if (data && data.id) {
         navigate(`/projects/${data.id}`);
       } else {
         alert("Проект создан, но не удалось получить id проекта");
@@ -352,7 +380,7 @@ export const ProjectForm: React.FC = () => {
         </div>
       </section>
 
-      {/* Динамические секции по типу проекта */}
+      {/* Динамические секции */}
       {projectType === "snk" && (
         <section className="form-section">
           <h2 className="section-title">Атрибуты СНК-проекта</h2>
@@ -501,7 +529,7 @@ export const ProjectForm: React.FC = () => {
                 <span className="participant-role">
                   <select
                     value={col.role}
-                    disabled={col.isCreator ? false : false} // все роли можно выбрать
+                    disabled={col.isCreator ? false : false}
                     onChange={e => handleChangeRole(idx, e.target.value as CollaboratorRole)}
                   >
                     <option value="">Выберите роль</option>
@@ -511,7 +539,6 @@ export const ProjectForm: React.FC = () => {
                   </select>
                 </span>
               </div>
-              {/* Нельзя удалить себя */}
               {!col.isCreator && (
                 <button
                   type="button"
@@ -533,7 +560,23 @@ export const ProjectForm: React.FC = () => {
       {/* Изображения */}
       <section className="form-section">
         <h2 className="section-title">Изображения</h2>
-        <FileUpload />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".jpg,.jpeg,.png"
+          multiple
+          style={{ display: "block", margin: "8px 0" }}
+          onChange={handleFileChange}
+        />
+        {projectFiles.length > 0 && (
+          <ul>
+            {projectFiles.map((file, idx) => (
+              <li key={idx}>
+                {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} МБ)
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <button type="submit" className="submit-button">
