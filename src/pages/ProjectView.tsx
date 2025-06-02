@@ -381,3 +381,4 @@ const [currentSlide, setCurrentSlide] = useState(0);
 };
 
 export default ProjectView;
+
