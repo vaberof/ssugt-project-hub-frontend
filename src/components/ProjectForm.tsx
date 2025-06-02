@@ -172,7 +172,7 @@ useEffect(() => {
       let usersMap: Record<number, { id: number; email: string; fullName: string }> = {};
       try {
         const token = getToken();
-        const resp = await fetch(`http://localhost:80/users?${ids.map(id => `ids=${id}`).join("&")}`, {
+        const resp = await fetch(`http://46.149.67.92:80/users?${ids.map(id => `ids=${id}`).join("&")}`, {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `${token}` } : {}),
@@ -268,7 +268,7 @@ useEffect(() => {
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
-      const resp = await fetch(`http://localhost:80/users/${encodeURIComponent(email)}`, {
+      const resp = await fetch(`http://46.149.67.92:80/users/${encodeURIComponent(email)}`, {
         headers: token ? { Authorization: `${token}` } : {},
       });
       if (!resp.ok) throw new Error();
@@ -418,7 +418,7 @@ useEffect(() => {
         collaborators: collaboratorsToSend,
       };
       try {
-        const resp = await fetch(`http://localhost:80/projects/${initialProject.id}`, {
+        const resp = await fetch(`http://46.149.67.92:80/projects/${initialProject.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -437,7 +437,7 @@ useEffect(() => {
           for (let file of projectFiles) {
             formData.append("files", file);
           }
-          const filesResp = await fetch(`http://localhost:80/projects/${projectId}/files`, {
+          const filesResp = await fetch(`http://46.149.67.92:80/projects/${projectId}/files`, {
             method: "PUT",
             headers: { Authorization: `${token}` },
             body: formData,
@@ -465,7 +465,7 @@ useEffect(() => {
     };
 
     try {
-      const resp = await fetch("http://localhost:80/projects", {
+      const resp = await fetch("http://46.149.67.92:80/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -482,7 +482,7 @@ useEffect(() => {
         for (let file of projectFiles) {
           formData.append("files", file);
         }
-        const filesResp = await fetch(`http://localhost:80/projects/${data.id}/files`, {
+        const filesResp = await fetch(`http://46.149.67.92:80/projects/${data.id}/files`, {
           method: "POST",
           headers: { Authorization: `${token}` },
           body: formData,

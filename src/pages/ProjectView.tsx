@@ -77,7 +77,7 @@ export const ProjectView: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    fetch(`http://localhost:80/projects/${id}`, {
+    fetch(`http://46.149.67.92:80/projects/${id}`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
@@ -104,7 +104,7 @@ export const ProjectView: React.FC = () => {
       const uniqueIds = Array.from(new Set(project.collaborators.map((c) => c.userId)));
       const searchParams = uniqueIds.map(id => `ids=${id}`).join("&");
       fetch(
-        `http://localhost:80/users?${searchParams}`,
+        `http://46.149.67.92:80/users?${searchParams}`,
         {
           headers: {
             "Content-Type": "application/json",

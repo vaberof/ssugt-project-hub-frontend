@@ -47,7 +47,7 @@ export const Profile: React.FC = () => {
     setLoading(true);
 
     // Получаем пользователя
-    fetch(`http://localhost:80/users?ids=${userId}`, {
+    fetch(`http://46.149.67.92:80/users?ids=${userId}`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
@@ -59,7 +59,7 @@ export const Profile: React.FC = () => {
       });
 
     // Получаем проекты пользователя
-    fetch(`http://localhost:80/users/${userId}/projects`, {
+    fetch(`http://46.149.67.92:80/users/${userId}/projects`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
