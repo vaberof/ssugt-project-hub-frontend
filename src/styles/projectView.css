@@ -387,13 +387,13 @@ background: #fff;
   line-height: 1.6;
   word-break: break-word;
 }
-.project-date {
+
+.project-view-date {
   font-size: 1.05rem;
   color: #777;
   font-weight: 500;
   letter-spacing: 0.01em;
 }
-
 
 .participant-full-link:hover {
   background: #f3f4f6;

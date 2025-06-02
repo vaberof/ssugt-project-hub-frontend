@@ -128,7 +128,7 @@ export const ProjectView: React.FC = () => {
   // Хэндлеры для редактирования
   const handleEditClick = () => setIsEditing(true);
   const handleCancelEdit = () => setIsEditing(false);
-const handleProjectUpdated = (updatedProject: Project) => {
+  const handleProjectUpdated = (updatedProject: Project) => {
     setIsEditing(false);
     setRefetchFlag(f => f + 1); // refetch из бэка
   };
@@ -161,6 +161,12 @@ const handleProjectUpdated = (updatedProject: Project) => {
     },
     { label: "Объект исследования/разработки", value: attributes.object },
     { label: "Стоимость", value: attributes.cost },
+    {
+    label: "Текущий этап разработки",
+      value: attributes.developingStage
+        ? <span className="category-tag" style={{ fontSize: 14 }}>{attributes.developingStage}</span>
+        : "—"
+    },
     { label: "Срок реализации", value: attributes.realizationTerm },
     { label: "Область применения", value: attributes.applicationScope },
     { label: "Источник финансирования", value: attributes.fundingSource },
@@ -364,7 +370,6 @@ const handleProjectUpdated = (updatedProject: Project) => {
                     <span className="tag tag-primary">
                       {type === 1 ? "СНК" : type === 2 ? "Лабораторный" : `Тип ${type}`}
                     </span>
-                    {stage && <span className="tag tag-secondary">{stage}</span>}
                   </div>
                   {attributes.title && <h1 className="project-title">{attributes.title}</h1>}
                   {attributes.summary && (
@@ -379,7 +384,7 @@ const handleProjectUpdated = (updatedProject: Project) => {
                     )}
                   </dl>
                   <div className="project-footer" style={{ marginTop: 24, fontSize: 18, color: "#777" }}>
-                    <span className="project-date">
+                    <span className="project-view-date">
                       {new Date(project.createdAt).toLocaleDateString("ru-RU")}
                     </span>
                   </div>

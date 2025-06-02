@@ -344,6 +344,12 @@
   font-size: 14px;
 }
 
+.project-date {
+  font-size: 14px;
+  color: #666;
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 991px) {
   .project-footer {
     flex-wrap: wrap;
