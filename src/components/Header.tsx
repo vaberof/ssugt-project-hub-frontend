@@ -88,7 +88,7 @@ export const Header: React.FC = () => {
                 Модерация проектов
               </Link>
             )}
-            <span className="disabled">О платформе</span>
+            {/* <span className="disabled">О платформе</span> */}
           </nav>
         </div>
         <div className="auth-section">

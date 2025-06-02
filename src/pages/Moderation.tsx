@@ -96,7 +96,7 @@ export const Moderation: React.FC = () => {
     };
 
     try {
-      const resp = await fetch("http://46.149.67.92:80/projects/search", {
+      const resp = await fetch("http://localhost:80/projects/search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +115,7 @@ export const Moderation: React.FC = () => {
       );
       if (allUserIds.length > 0) {
         const params = allUserIds.map((id) => `ids=${id}`).join("&");
-        const usersResp = await fetch(`http://46.149.67.92:80/users?${params}`, {
+        const usersResp = await fetch(`http://localhost:80/users?${params}`, {
           headers: { "Content-Type": "application/json" }
         });
         const usersData = await usersResp.json();

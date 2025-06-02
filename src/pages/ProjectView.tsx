@@ -67,13 +67,14 @@ export const ProjectView: React.FC = () => {
   const [userMap, setUserMap] = useState<Record<number, UserResponse>>({});
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [userIdLoading, setUserIdLoading] = useState(true);
+const [currentSlide, setCurrentSlide] = useState(0);
 
   // Получить project
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    fetch(`http://46.149.67.92:80/projects/${id}`, {
+    fetch(`http://localhost:80/projects/${id}`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
@@ -102,7 +103,7 @@ export const ProjectView: React.FC = () => {
       const uniqueIds = Array.from(new Set(project.collaborators.map((c) => c.userId)));
       const searchParams = uniqueIds.map(id => `ids=${id}`).join("&");
       fetch(
-        `http://46.149.67.92:80/users?${searchParams}`,
+        `http://localhost:80/users?${searchParams}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -251,27 +252,71 @@ export const ProjectView: React.FC = () => {
 
           {/* Правая панель */}
           <div className="main-content">
-            <div className="project-details-card">
-              {/* Слайдер картинок */}
-              {images.length > 0 && (
-                <div className="project-images" style={{ marginBottom: 16 }}>
-                  {images.map((img, i) => (
-                    <img
-                      key={img.url}
-                      src={img.url}
-                      alt={img.name}
-                      style={{
-                        width: 220,
-                        height: 220,
-                        objectFit: "cover",
-                        borderRadius: 10,
-                        marginRight: 8,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
+      <div className="project-details-card">
+        {/* --- КАРУСЕЛЬ КАРТИНОК --- */}
+        {images.length > 0 && (
+  <div className="slider-container">
+    <img
+      src={images[currentSlide].url}
+      alt={images[currentSlide].name}
+      className="slider-image"
+    />
+    {images.length > 1 && (
+      <>
+        <button
+          className="nav-button left"
+          onClick={e => {
+            e.stopPropagation();
+            setCurrentSlide(prev => (prev === 0 ? images.length - 1 : prev - 1));
+          }}
+          aria-label="Назад"
+        >
+          <span className="nav-icon" aria-hidden>‹</span>
+        </button>
+        <button
+          className="nav-button right"
+          onClick={e => {
+            e.stopPropagation();
+            setCurrentSlide(prev => (prev === images.length - 1 ? 0 : prev + 1));
+          }}
+          aria-label="Вперёд"
+        >
+          <span className="nav-icon" aria-hidden>›</span>
+        </button>
+        <div className="slider-dots" style={{
+          position: "absolute",
+          bottom: 14,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: 8
+        }}>
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              className={`slider-dot${idx === currentSlide ? " active" : ""}`}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: idx === currentSlide ? "#3b82f6" : "#fff",
+                border: "none",
+                margin: 0,
+                padding: 0,
+                cursor: "pointer"
+              }}
+              onClick={e => {
+                e.stopPropagation();
+                setCurrentSlide(idx);
+              }}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+)}
               <div className="project-info">
                 <div className="project-tags">
                   <span className="tag tag-primary">
@@ -320,11 +365,11 @@ export const ProjectView: React.FC = () => {
                   <span>
                     Создано: {new Date(project.createdAt).toLocaleString("ru-RU")}
                   </span>
-                  {project.updatedAt && (
+                  {/* {project.updatedAt && (
                     <span style={{ marginLeft: 22 }}>
                       Обновлено: {new Date(project.updatedAt).toLocaleString("ru-RU")}
                     </span>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

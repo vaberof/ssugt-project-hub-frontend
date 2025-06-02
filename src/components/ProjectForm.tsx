@@ -79,7 +79,7 @@ export const ProjectForm: React.FC = () => {
     const token = getToken();
     const userId = await getUserIdFromApi();
     if (!userId) return;
-    const resp = await fetch(`http://46.149.67.92:80/users?ids=${userId}`, {
+    const resp = await fetch(`http://localhost:80/users?ids=${userId}`, {
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `${token}` } : {}),
@@ -135,7 +135,7 @@ export const ProjectForm: React.FC = () => {
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
-      const resp = await fetch(`http://46.149.67.92:80/users/${encodeURIComponent(email)}`, {
+      const resp = await fetch(`http://localhost:80/users/${encodeURIComponent(email)}`, {
         headers: token ? { Authorization: `${token}` } : {},
       });
       if (!resp.ok) throw new Error();
@@ -268,7 +268,7 @@ export const ProjectForm: React.FC = () => {
     };
 
     try {
-      const resp = await fetch("http://46.149.67.92:80/projects", {
+      const resp = await fetch("http://localhost:80/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -285,7 +285,7 @@ export const ProjectForm: React.FC = () => {
         for (let file of projectFiles) {
           formData.append("files", file);
         }
-        const filesResp = await fetch(`http://46.149.67.92:80/projects/${data.id}/files`, {
+        const filesResp = await fetch(`http://localhost:80/projects/${data.id}/files`, {
           method: "POST",
           headers: { Authorization: `${token}` },
           body: formData,

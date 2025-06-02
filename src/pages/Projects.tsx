@@ -45,7 +45,7 @@ const checkAdminStatus = async (): Promise<boolean> => {
   const token = getToken();
   if (!token) return false;
   try {
-    const response = await fetch("http://46.149.67.92:80/auth/is-admin", {
+    const response = await fetch("http://localhost:80/auth/is-admin", {
       method: "GET",
       headers: {
         Authorization: `${token}`,
@@ -133,7 +133,7 @@ export const Projects: React.FC = () => {
     };
 
     try {
-      const resp = await fetch('http://46.149.67.92:80/projects/search', {
+      const resp = await fetch('http://localhost:80/projects/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ export const Projects: React.FC = () => {
       );
       if (allUserIds.length > 0) {
         const params = allUserIds.map(id => `ids=${id}`).join('&');
-        const usersResp = await fetch(`http://46.149.67.92:80/users?${params}`, {
+        const usersResp = await fetch(`http://localhost:80/users?${params}`, {
           headers: {
             'Content-Type': 'application/json',
           }

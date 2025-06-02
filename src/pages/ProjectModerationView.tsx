@@ -66,13 +66,14 @@ export const ProjectModerationView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userMap, setUserMap] = useState<Record<number, UserResponse>>({});
+const [currentSlide, setCurrentSlide] = useState(0);
 
   // Получить project
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    fetch(`http://46.149.67.92:80/projects/${id}`, {
+    fetch(`http://localhost:80/projects/${id}`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
@@ -93,7 +94,7 @@ export const ProjectModerationView: React.FC = () => {
       const uniqueIds = Array.from(new Set(project.collaborators.map((c) => c.userId)));
       const searchParams = uniqueIds.map(id => `ids=${id}`).join("&");
       fetch(
-        `http://46.149.67.92:80/users?${searchParams}`,
+        `http://localhost:80/users?${searchParams}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -240,27 +241,105 @@ export const ProjectModerationView: React.FC = () => {
 
           {/* Правая панель */}
           <div className="main-content">
-            <div className="project-details-card">
-              {/* Картинки в сетке, аккуратно как на ProjectView */}
-              {images.length > 0 && (
-                <div className="project-images" style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-                  {images.map((img, i) => (
-                    <img
-                      key={img.url}
-                      src={img.url}
-                      alt={img.name}
+      <div className="project-details-card">
+        {/* --- КАРУСЕЛЬ КАРТИНОК --- */}
+        {images.length > 0 && (
+          <div className="slider-container">
+            <img
+              src={images[currentSlide].url}
+              alt={images[currentSlide].name}
+              className="slider-image"
+            
+            />
+            {/* Стрелки */}
+            {images.length > 1 && (
+              <>
+                <button
+                  className="slider-arrow slider-arrow-left"
+                  style={{
+                    position: "absolute",
+                    left: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "#fff",
+                    border: "none",
+                    borderRadius: "50%",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    width: 40,
+                    height: 40,
+                    cursor: "pointer",
+                    zIndex: 2
+                  }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentSlide((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+                  }}
+                  aria-label="prev"
+                >
+                  &#8592;
+                </button>
+                <button
+                  className="slider-arrow slider-arrow-right"
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "#fff",
+                    border: "none",
+                    borderRadius: "50%",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    width: 40,
+                    height: 40,
+                    cursor: "pointer",
+                    zIndex: 2
+                  }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentSlide((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+                  }}
+                  aria-label="next"
+                >
+                  &#8594;
+                </button>
+                {/* Точки */}
+                <div
+                  className="slider-dots"
+                  style={{
+                    position: "absolute",
+                    bottom: 14,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    gap: 8
+                  }}
+                >
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      className={`slider-dot${idx === currentSlide ? " active" : ""}`}
                       style={{
-                        width: 220,
-                        height: 220,
-                        objectFit: "cover",
-                        borderRadius: 10,
-                        marginRight: 0,
-                        background: "#f7f7fb"
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        background: idx === currentSlide ? "#3b82f6" : "#fff",
+                        border: "none",
+                        margin: 0,
+                        padding: 0,
+                        cursor: "pointer"
                       }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setCurrentSlide(idx);
+                      }}
+                      aria-label={`Go to slide ${idx + 1}`}
                     />
                   ))}
                 </div>
-              )}
+              </>
+            )}
+          </div>
+        )}
 
               <div className="project-info">
                 <div className="project-tags">

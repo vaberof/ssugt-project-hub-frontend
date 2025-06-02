@@ -11,7 +11,6 @@ interface ProjectCardProps {
   authors: string;
   date: string;
   images: string[];
-  sliderImages?: string[];
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -23,51 +22,56 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   tags,
   authors,
   date,
-  images,
-  sliderImages
+  images
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCurrentSlide(s => (s === 0 ? images.length - 1 : s - 1));
+  };
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCurrentSlide(s => (s === images.length - 1 ? 0 : s + 1));
+  };
 
   return (
     <Link to={`/projects/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className="project-card" tabIndex={0} style={{ cursor: 'pointer' }}>
-        {sliderImages ? (
-          <div className="project-slider">
-            <img src={images[0]} alt={title} className="project-image" />
-            <div className="slider-controls">
-              {sliderImages.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${title} ${index + 1}`}
-                  className="slider-thumbnail"
-                  onClick={e => { e.preventDefault(); setCurrentSlide(index); }}
-                />
-              ))}
-            </div>
-            <div className="slider-dots">
-              {sliderImages.map((_, index) => (
-                <div
-                  key={index}
-                  className={`slider-dot ${index === currentSlide ? 'active' : ''}`}
-                  onClick={e => { e.preventDefault(); setCurrentSlide(index); }}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <img src={images[0]} alt={title} className="project-image" />
-        )}
+        <div className="slider-container">
+          <img
+            src={images[currentSlide]}
+            alt={title}
+            className="slider-image"
+          />
+          {images.length > 1 && (
+            <>
+              <button className="nav-button left" onClick={handlePrev} aria-label="Назад">
+                <span className="nav-icon" aria-hidden>‹</span>
+              </button>
+              <button className="nav-button right" onClick={handleNext} aria-label="Вперёд">
+                <span className="nav-icon" aria-hidden>›</span>
+              </button>
+              <div className="slider-dots">
+                {images.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`slider-dot${idx === currentSlide ? ' active' : ''}`}
+                    onClick={e => { e.preventDefault(); setCurrentSlide(idx); }}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="project-content">
           <div className="project-badges">
             <span className="project-type">{type}</span>
             <span className="project-status">{status}</span>
           </div>
-
           <h3 className="project-title">{title}</h3>
           <p className="project-description">{description}</p>
-
           <div className="project-tags">
             {tags.map((tag) => (
               <span key={tag} className="project-tag">
@@ -75,7 +79,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </span>
             ))}
           </div>
-
           <div className="project-footer">
             <span className="project-authors">{authors}</span>
             <span className="project-date">{date}</span>
