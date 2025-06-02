@@ -15,7 +15,7 @@ const checkAdminStatus = async (): Promise<boolean> => {
   const token = getToken();
   if (!token) return false;
   try {
-    const response = await fetch("http://localhost:80/auth/is-admin", {
+    const response = await fetch("http://46.149.67.92:80/auth/is-admin", {
       method: "GET",
       headers: {
         Authorization: `${token}`,

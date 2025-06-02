@@ -20,7 +20,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:80/auth/login", {
+      const response = await fetch("http://46.149.67.92:80/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

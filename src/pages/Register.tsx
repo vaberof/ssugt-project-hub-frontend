@@ -23,7 +23,7 @@ export const Register: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:80/auth/register', {
+      const response = await fetch('http://46.149.67.92:80/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

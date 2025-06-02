@@ -61,7 +61,7 @@ export const VerifyEmail: React.FC = () => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:80/auth/verify-email", {
+      const response = await fetch("http://46.149.67.92:80/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code }),
@@ -86,7 +86,7 @@ export const VerifyEmail: React.FC = () => {
     setError("");
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:80/auth/resend-verification", {
+      const response = await fetch("http://46.149.67.92:80/auth/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
