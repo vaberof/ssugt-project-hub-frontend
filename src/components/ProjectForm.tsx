@@ -32,7 +32,67 @@ interface CollaboratorDraft {
   isCreator?: boolean;
 }
 
-export const ProjectForm: React.FC = () => {
+interface ProjectAttributes {
+  title?: string;
+  object?: string;
+  summary?: string;
+  cost?: string;
+  developingStage?: string;
+  realizationTerm?: string;
+  applicationScope?: string;
+  tags?: string[];
+  fundingSource?: string;
+  teamSize?: number;
+  researchGoals?: string;
+  methodology?: string;
+  potentialImpact?: string;
+  laboratoryName?: string;
+  problematic?: string;
+  solution?: string;
+  functionality?: string;
+  technologyStack?: string;
+  advantages?: string[];
+  testResults?: string;
+  deploymentPlan?: string;
+}
+
+interface Collaborator {
+  userId: number;
+  role: string;
+}
+
+interface ProjectFile {
+  id: string;
+  type: string;
+  name: string;
+  content?: string;
+}
+
+interface Project {
+  id: number;
+  userId: number;
+  type: number;
+  status: string;
+  attributes: ProjectAttributes;
+  collaborators?: Collaborator[];
+  files?: ProjectFile[] | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface ProjectFormProps {
+  mode?: "create" | "edit";
+  initialProject?: Project;
+  onCancel?: () => void;
+  onSubmit?: (project: Project) => void;
+}
+
+export const ProjectForm: React.FC<ProjectFormProps> = ({
+  mode = "create",
+  initialProject,
+  onCancel,
+  onSubmit,
+}) => {
   const navigate = useNavigate();
 
   // Form state
@@ -79,17 +139,97 @@ export const ProjectForm: React.FC = () => {
 
   const [dragActive, setDragActive] = useState(false);
 
+  const [collaboratorsLoading, setCollaboratorsLoading] = useState(false);
+
+
   const developingStageOptions = [
-  { value: "Концепт", label: "Концепт" },
-  { value: "Исследование", label: "Исследование" },
-  { value: "Разработка", label: "Разработка" },
-  { value: "Тестирование", label: "Тестирование" },
-  { value: "Внедрение", label: "Внедрение" },
-  { value: "Завершён", label: "Завершён" },
-  { value: "Приостановлен", label: "Приостановлен" },
-  { value: "Отменён", label: "Отменён" },
-  { value: "Другое", label: "Другое" },
-];
+    { value: "Концепт", label: "Концепт" },
+    { value: "Исследование", label: "Исследование" },
+    { value: "Разработка", label: "Разработка" },
+    { value: "Тестирование", label: "Тестирование" },
+    { value: "Внедрение", label: "Внедрение" },
+    { value: "Завершён", label: "Завершён" },
+    { value: "Приостановлен", label: "Приостановлен" },
+    { value: "Отменён", label: "Отменён" },
+    { value: "Другое", label: "Другое" },
+  ];
+
+  // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ДЛЯ РЕДАКТИРОВАНИЯ ---
+useEffect(() => {
+  async function initCollaborators() {
+    if (
+      initialProject &&
+      initialProject.collaborators &&
+      Array.isArray(initialProject.collaborators)
+    ) {
+      setCollaboratorsLoading(true);
+
+      // Получаем список userId без дублей
+      const ids = Array.from(
+        new Set(initialProject.collaborators.map((c) => c.userId))
+      );
+      // Запрашиваем пачкой пользователей
+      let usersMap: Record<number, { id: number; email: string; fullName: string }> = {};
+      try {
+        const token = getToken();
+        const resp = await fetch(`http://localhost:80/users?${ids.map(id => `ids=${id}`).join("&")}`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `${token}` } : {}),
+          },
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (Array.isArray(data.users)) {
+            data.users.forEach((u: any) => {
+              usersMap[u.id] = u;
+            });
+          }
+        }
+      } catch {}
+
+      setCollaborators(
+      initialProject.collaborators.map((c) => ({
+        email: "",
+        role: collaboratorRoles.includes(c.role as CollaboratorRole) ? (c.role as CollaboratorRole) : "",
+        user: usersMap[c.userId] || { id: c.userId, email: "", fullName: "" },
+        isCreator: c.userId === initialProject.userId,
+      }))
+    );
+      setCollaboratorsLoading(false);
+    }
+  }
+
+  if (initialProject) {
+    setProjectType(initialProject.type === 1 ? "snk" : "laboratory");
+    const attr = initialProject.attributes;
+    setTitle(attr.title || "");
+    setObject(attr.object || "");
+    setSummary(attr.summary || "");
+    setCost(attr.cost || "");
+    setDevelopingStage(attr.developingStage || "");
+    setRealizationTerm(attr.realizationTerm || "");
+    setApplicationScope(attr.applicationScope || "");
+    setTags((attr.tags || []).map((t: string) => ({ name: t })));
+    setFundingSource(attr.fundingSource || "");
+    setTeamSize(attr.teamSize ? attr.teamSize.toString() : "");
+    setResearchGoals(attr.researchGoals || "");
+    setMethodology(attr.methodology || "");
+    setPotentialImpact(attr.potentialImpact || "");
+    setLaboratoryName(attr.laboratoryName || "");
+    setProblematic(attr.problematic || "");
+    setSolution(attr.solution || "");
+    setFunctionality(attr.functionality || "");
+    setTechnologyStack(attr.technologyStack || "");
+    setAdvantages(attr.advantages || []);
+    setTestResults(attr.testResults || "");
+    setDeploymentPlan(attr.deploymentPlan || "");
+
+    // Загружаем участников с ФИО!
+    initCollaborators();
+  }
+  // eslint-disable-next-line
+}, [initialProject]);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -103,50 +243,12 @@ export const ProjectForm: React.FC = () => {
     return newErrors;
   };
 
-  // Добавление себя как участника
-  useEffect(() => {
-    async function fetchSelf() {
-      const token = getToken();
-      const userId = await getUserIdFromApi();
-      if (!userId) return;
-      const resp = await fetch(`http://localhost:80/users?ids=${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `${token}` } : {}),
-        },
-      });
-      const data = await resp.json();
-      if (data && data.users && data.users[0]) {
-        const user = data.users[0];
-        setCollaborators((prev) => {
-          if (prev.some((c) => c.email === user.email)) return prev;
-          return [
-            {
-              email: user.email,
-              role: "",
-              user: {
-                id: user.id,
-                email: user.email,
-                fullName: user.fullName,
-              },
-              isCreator: true,
-            },
-            ...prev,
-          ];
-        });
-      }
-    }
-    fetchSelf();
-    // eslint-disable-next-line
-  }, []);
-
-  // Для очистки ошибок при изменении
+  // --- Остальной код формы (handleFieldChange, tags, advantages, files, collaborators) ---
   const handleFieldChange = (field: string, value: string, setter: (v: string) => void) => {
     setter(value);
     setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
-  // Tags
   const handleAddTag = () => {
     if (newTag.trim() && !tags.find((t) => t.name === newTag.trim())) {
       setTags([...tags, { name: newTag.trim() }]);
@@ -155,8 +257,6 @@ export const ProjectForm: React.FC = () => {
     }
   };
   const handleRemoveTag = (idx: number) => setTags(tags.filter((_, i) => i !== idx));
-
-  // Advantages
   const handleAddAdvantage = () => {
     if (newAdvantage.trim() && !advantages.includes(newAdvantage.trim())) {
       setAdvantages([...advantages, newAdvantage.trim()]);
@@ -165,8 +265,6 @@ export const ProjectForm: React.FC = () => {
   };
   const handleRemoveAdvantage = (idx: number) =>
     setAdvantages(advantages.filter((_, i) => i !== idx));
-
-  // Collaborators
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
@@ -223,8 +321,6 @@ export const ProjectForm: React.FC = () => {
     );
     setErrors(prev => ({ ...prev, collaborators: "" }));
   };
-
-  // File Upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
     const images = selected.filter(f =>
@@ -237,20 +333,19 @@ export const ProjectForm: React.FC = () => {
     }
     setProjectFiles(images);
   };
-
   const handleDropFiles = (files: FileList) => {
-  const images = Array.from(files).filter(f =>
-    ["image/jpeg", "image/png", "image/jpg"].includes(f.type)
-  );
-  const totalSize = images.reduce((acc, f) => acc + f.size, 0);
-  if (totalSize > 50 * 1024 * 1024) {
-    alert("Суммарный размер файлов не должен превышать 50 МБ");
-    return;
-  }
-  setProjectFiles(prev => [...prev, ...images]);
-};
+    const images = Array.from(files).filter(f =>
+      ["image/jpeg", "image/png", "image/jpg"].includes(f.type)
+    );
+    const totalSize = images.reduce((acc, f) => acc + f.size, 0);
+    if (totalSize > 50 * 1024 * 1024) {
+      alert("Суммарный размер файлов не должен превышать 50 МБ");
+      return;
+    }
+    setProjectFiles(prev => [...prev, ...images]);
+  };
 
-  // Main Submit
+  // --- Основной SUBMIT ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
@@ -264,7 +359,7 @@ export const ProjectForm: React.FC = () => {
       return;
     }
 
-    const userId = await getUserIdFromApi();
+    let userId = await getUserIdFromApi();
     if (!userId) {
       alert("Не удалось получить userId (issuer) из токена");
       return;
@@ -313,6 +408,55 @@ export const ProjectForm: React.FC = () => {
 
     const typeId = projectType === "snk" ? 1 : 2;
 
+    if (mode === "edit" && initialProject) {
+      // UPDATE PROJECT
+      const payload = {
+        userId: initialProject.userId,
+        type: typeId,
+        status: "В процессе",
+        attributes,
+        collaborators: collaboratorsToSend,
+      };
+      try {
+        const resp = await fetch(`http://localhost:80/projects/${initialProject.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!resp.ok) throw new Error("Ошибка обновления проекта");
+        const data = await resp.json();
+
+        // Загружаем файлы, если они есть
+        let filesRespOk = true;
+        if (data && (data.project?.id || data.id) && projectFiles.length > 0) {
+          const projectId = data.project?.id || data.id;
+          const formData = new FormData();
+          for (let file of projectFiles) {
+            formData.append("files", file);
+          }
+          const filesResp = await fetch(`http://localhost:80/projects/${projectId}/files`, {
+            method: "PUT",
+            headers: { Authorization: `${token}` },
+            body: formData,
+          });
+          filesRespOk = filesResp.ok;
+          if (!filesRespOk) {
+            alert("Проект обновлён, но файлы не обновились!");
+          }
+        }
+
+        if (onSubmit) onSubmit(data.project ?? data); // ТОЛЬКО onSubmit
+        return; // завершаем хендлер
+      } catch {
+        alert("Не удалось обновить проект");
+      }
+      return;
+    }
+
+    // --- СОЗДАНИЕ ---
     const payload = {
       userId,
       type: typeId,
@@ -359,10 +503,11 @@ export const ProjectForm: React.FC = () => {
     }
   };
 
-  // UI
+  // --- UI ---
   return (
     <form onSubmit={handleSubmit} className="project-form">
-      {/* Тип проекта */}
+      {/* ... Вся остальная разметка формы без изменений ... */}
+{/* Тип проекта */}
       <section className="form-section">
         <h2 className="section-title">Тип проекта</h2>
         <div className="project-type-options">
@@ -416,19 +561,10 @@ export const ProjectForm: React.FC = () => {
             <input type="text" className="form-input" value={cost} onChange={e => setCost(e.target.value)} />
           </div>
           <div className="form-group half-width">
-  <label className="form-label">Текущий этап разработки</label>
-  <select
-    className="form-input"
-    value={developingStage}
-    onChange={e => handleFieldChange("developingStage", e.target.value, setDevelopingStage)}
-  >
-    <option value="">Выберите этап</option>
-    {developingStageOptions.map(opt => (
-      <option key={opt.value} value={opt.value}>{opt.label}</option>
-    ))}
-  </select>
-  {isSubmitted && errors.developingStage && <div className="error-message">{errors.developingStage}</div>}
-</div>
+            <label className="form-label">Текущий этап разработки</label>
+            <input type="text" className="form-input" value={developingStage} onChange={e => handleFieldChange("developingStage", e.target.value, setDevelopingStage)} />
+            {isSubmitted && errors.developingStage && <div className="error-message">{errors.developingStage}</div>}
+          </div>
         </div>
         <div className="form-row">
           <div className="form-group half-width">
@@ -595,37 +731,39 @@ export const ProjectForm: React.FC = () => {
         {colSearchError && <span className="error-message">{colSearchError}</span>}
         <div className="participants-list">
           {collaborators.map((col, idx) => (
-            <div key={idx} className="participant-item">
-              <div className="participant-info">
-                <span className="participant-name">{col.user?.fullName || col.email}</span>
-                <span className="participant-role">
-                  <select
-                    value={col.role}
-                    disabled={col.isCreator ? false : false}
-                    onChange={e => handleChangeRole(idx, e.target.value as CollaboratorRole)}
-                  >
-                    <option value="">Выберите роль</option>
-                    {collaboratorRoles.map(r => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </span>
-              </div>
-              {!col.isCreator && (
-                <button
-                  type="button"
-                  className="remove-participant-button"
-                  onClick={() => handleRemoveCollaborator(idx)}
-                >
-                  <img
-                    src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/3293b9ebf58506465abf88390a3ab44c4d6891ce?placeholderIfAbsent=true"
-                    alt="Remove"
-                    className="remove-icon"
-                  />
-                </button>
-              )}
-            </div>
+  <div key={idx} className="participant-item">
+    <div className="participant-info">
+      <span className="participant-name">{col.user?.fullName || col.email}</span>
+      <span className="participant-role">
+        <select
+          value={col.role}
+          disabled={col.isCreator ? false : false}
+          onChange={e => handleChangeRole(idx, e.target.value as CollaboratorRole)}
+        >
+          <option value="">Выберите роль</option>
+          {collaboratorRoles.map(r => (
+            <option key={r} value={r}>{r}</option>
           ))}
+        </select>
+      </span>
+    </div>
+    {/* Вот тут: */}
+    {!col.isCreator && (
+      <button
+        type="button"
+        className="remove-participant-button"
+        onClick={() => handleRemoveCollaborator(idx)}
+      >
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/11a8d4f539624a85af93ab73e5adf46a/3293b9ebf58506465abf88390a3ab44c4d6891ce?placeholderIfAbsent=true"
+          alt="Remove"
+          className="remove-icon"
+        />
+      </button>
+    )}
+  </div>
+))}
+          
         </div>
       </section>
 
@@ -705,12 +843,21 @@ export const ProjectForm: React.FC = () => {
     </ul>
   )}
 </section>
-
-
-
-      <button type="submit" className="submit-button">
-        Создать проект
-      </button>
+      {/* Кнопки */}
+      <div className="form-actions" style={{ marginTop: 30 }}>
+        <button type="submit" className="submit-button">
+          {mode === "edit" ? "Сохранить изменения" : "Создать проект"}
+        </button>
+        {mode === "edit" && onCancel && (
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={onCancel}
+          >
+            Отмена
+          </button>
+        )}
+      </div>
     </form>
   );
 };

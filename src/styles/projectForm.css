@@ -228,6 +228,33 @@
   margin: 6px 0 0 2px;
 }
 
+.form-actions {
+  display: flex;
+  gap: 18px; /* отступ между кнопками */
+  margin-top: 30px;
+}
+
+.cancel-button {
+  margin-top: 18px;
+  width: 100%;
+  padding: 13px 0;
+  font-size: 1.09rem;
+  background: #f3f4f6;
+  color: #3877e3;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 12px 0 rgba(51, 119, 227, 0.11);
+  cursor: pointer;
+  transition: background 0.17s;
+}
+
+.cancel-button:hover,
+.cancel-button:focus {
+  background: #e0e7ef;
+  color: #2650a6;
+}
+
 .submit-button {
   margin-top: 18px;
   width: 100%;
