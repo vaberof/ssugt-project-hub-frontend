@@ -1,0 +1,526 @@
+/* projectForm.css */
+
+.project-form {
+  max-width: 900px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 32px 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px 0 rgba(30, 41, 59, 0.07);
+  box-sizing: border-box;
+}
+
+.form-section {
+  margin-bottom: 28px;
+}
+
+.section-title {
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #253257;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 1rem;
+  margin-bottom: 7px;
+  color: #3d466b;
+}
+
+.form-input,
+.form-textarea,
+.tags-input,
+.participant-input,
+.role-input,
+.participant-role select {
+  font-family: inherit;
+  font-size: 1.05rem;
+  color: #253257;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.26;
+  background: #fff;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder,
+.tags-input::placeholder,
+.participant-input::placeholder,
+.role-input::placeholder {
+  color: #b0b7d1;
+  opacity: 1;
+  font-weight: 400;
+}
+
+
+.form-textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.half-width {
+  flex: 1 1 210px;
+  min-width: 160px;
+}
+
+.tags-input-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tags-input {
+  flex: 1 1 160px;
+  min-width: 120px;
+  margin-bottom: 0;
+}
+
+.add-tag-button,
+.add-participant-button {
+  padding: 8px 14px;
+  font-size: 1rem;
+  background: #3877e3;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.17s;
+  white-space: nowrap;
+}
+
+.add-tag-button:hover,
+.add-participant-button:hover {
+  background: #2553aa;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.tag-item {
+  background: #e8f0fe;
+  color: #3166c8;
+  border-radius: 16px;
+  padding: 3px 12px 3px 10px;
+  font-size: 0.97em;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.remove-tag-button, .remove-participant-button {
+  background: transparent;
+  border: none;
+  margin-left: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.remove-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.add-participant {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.role-input,
+.participant-role select {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #253257;
+  background: #fff;
+   border: 1px solid #ccc;  
+  border: 1.5px solid #e2e6f3;
+  border-radius: 7px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.17s, background 0.17s;
+  max-width: 250px;
+  height: 42px;
+  margin-bottom: 0;
+  appearance: none;
+}
+
+.role-input:focus,
+.participant-role select:focus {
+  border-color: #3877e3;
+  background: #f5f9ff;
+}
+
+.participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.participant-item {
+  display: inline-block;
+  align-items: center;
+  background: #f4f6fb;
+  border-radius: 16px;
+  padding: 10px 18px 10px 14px;
+  font-size: 1em;
+  color: #3166c8;
+  box-shadow: 0 1px 3px 0 rgba(30, 41, 59, 0.05);
+  width: fit-content;       /* <= ВАЖНО */
+  min-width: 0;
+  max-width: 320px;
+  gap: 9px;
+  flex: none;
+  box-sizing: border-box;
+  margin: 0;                /* margin-bottom точно убрать */
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  min-width: 0;
+  width: auto;
+}
+
+.participant-name {
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  /* убери max-width! */
+}
+
+.participant-role select {
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  margin-left: 4px;
+}
+
+.error-message {
+  color: #f1503b;
+  font-size: 0.98em;
+  margin: 6px 0 0 2px;
+}
+
+.submit-button {
+  margin-top: 18px;
+  width: 100%;
+  padding: 13px 0;
+  font-size: 1.09rem;
+  background: linear-gradient(90deg, #3877e3 60%, #3eb3e6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 12px 0 rgba(51, 119, 227, 0.11);
+  cursor: pointer;
+  transition: background 0.17s;
+}
+
+.submit-button:hover {
+  background: linear-gradient(90deg, #2553aa 60%, #318ca8 100%);
+}
+
+/* Форма выбора файлов */
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f7fafd;
+  border: 1.5px solid #e2e6f3;
+  border-radius: 9px;
+  padding: 18px 18px 10px 18px;
+  margin-bottom: 10px;
+}
+
+.file-label {
+  font-size: 1rem;
+  color: #3d466b;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Кастомная кнопка для выбора файлов */
+.custom-upload-button {
+  padding: 8px 18px;
+  background: #3877e3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+  margin-bottom: 0;
+  margin-top: 2px;
+  width: fit-content;
+}
+.custom-upload-button:hover {
+  background: #2553aa;
+}
+
+/* Кнопка удаления файла */
+.remove-file-button {
+  margin-left: 10px;
+  background: transparent;
+  color: #f1503b;
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0 4px;
+  transition: background 0.16s;
+  vertical-align: middle;
+}
+.remove-file-button:hover {
+  background: #ffe6e6;
+}
+
+.file-input:focus {
+  border-color: #3877e3;
+  background: #f5f9ff;
+}
+
+.file-list {
+  margin: 0 0 0 3px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-list li {
+  font-size: 0.97rem;
+  background: #e8f0fe;
+  color: #3166c8;
+  border-radius: 12px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 97%;
+  word-break: break-all;
+  box-shadow: 0 1px 3px 0 rgba(30, 41, 59, 0.06);
+  margin-bottom: 0;
+}
+
+.dropzone {
+  border: 2px dashed #e2e6f3;
+  background: #fcfdff;
+  border-radius: 16px;
+  min-height: 200px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.dropzone.drag-active {
+  border-color: #3877e3;
+  background: #f5f9ff;
+}
+
+.dropzone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.dropzone-icon {
+  margin-bottom: 10px;
+  opacity: 0.93;
+}
+
+.dropzone-label {
+  color: #252d47;
+  font-size: 1.06em;
+  margin-bottom: 7px;
+}
+
+.custom-upload-button {
+  padding: 10px 28px;
+  font-size: 1.07em;
+  font-weight: 500;
+  background: #3877e3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+.custom-upload-button:hover {
+  background: #2553aa;
+}
+
+.dropzone-hint {
+  font-size: 0.93em;
+  color: #8a9ac6;
+}
+
+.file-list-preview {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.file-preview-item {
+  background: #fff;
+  border: 1.5px solid #e2e6f3;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 19px 11px 13px;
+  box-shadow: 0 2px 7px 0 rgba(30, 41, 59, 0.07);
+  position: relative;
+  min-height: 60px;
+}
+
+.file-preview-thumb {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 1px solid #dde4f5;
+  background: #f8fafc;
+  box-shadow: 0 1px 4px 0 rgba(51, 119, 227, 0.07);
+}
+
+.file-preview-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+
+.file-preview-name {
+  font-size: 1em;
+  color: #1d2646;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.file-preview-size {
+  font-size: 0.95em;
+  color: #8ca0b8;
+}
+
+.remove-file-button {
+  margin-left: 7px;
+  background: transparent;
+  color: #f1503b;
+  border: none;
+  font-size: 1.28em;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0 8px;
+  transition: background 0.17s;
+  align-self: flex-start;
+}
+.remove-file-button:hover {
+  background: #ffe6e6;
+}
+
+@media (max-width: 700px) {
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 9px;
+  }
+  .participants-list {
+    gap: 5px;
+  }
+  .participant-info {
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-form {
+    padding: 13px 2vw;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .half-width {
+    min-width: 100%;
+    width: 100%;
+  }
+  .tags-input-container,
+  .add-participant {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+  .add-tag-button,
+  .add-participant-button {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 0;
+  }
+  .participants-list {
+    gap: 4px;
+  }
+  .participant-item {
+    padding: 7px 7px;
+  }
+}
+
+@media (max-width: 640px) {
+  .role-input,
+  .participant-role select {
+    font-size: 0.97rem;
+    padding: 7px 9px !important;
+    border-radius: 6px;
+    height: 40px;
+  }
+}

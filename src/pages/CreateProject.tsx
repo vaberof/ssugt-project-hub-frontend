@@ -7,9 +7,7 @@ export const CreateProject: React.FC = () => {
     <div className="create-project">
       <div className="create-project-container">
         <div className="create-project-content">
-          <div className="create-project-card">
             <ProjectForm />
-          </div>
         </div>
       </div>
     </div>

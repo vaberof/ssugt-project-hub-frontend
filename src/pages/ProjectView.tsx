@@ -74,7 +74,7 @@ const [currentSlide, setCurrentSlide] = useState(0);
     setLoading(true);
     setError(null);
 
-    fetch(`http://46.149.67.92:80/projects/${id}`, {
+    fetch(`http://localhost:80/projects/${id}`, {
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `${getToken()}` } : {}),
@@ -103,7 +103,7 @@ const [currentSlide, setCurrentSlide] = useState(0);
       const uniqueIds = Array.from(new Set(project.collaborators.map((c) => c.userId)));
       const searchParams = uniqueIds.map(id => `ids=${id}`).join("&");
       fetch(
-        `http://46.149.67.92:80/users?${searchParams}`,
+        `http://localhost:80/users?${searchParams}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -142,6 +142,16 @@ const [currentSlide, setCurrentSlide] = useState(0);
 
   // Только заполненные атрибуты (кроме Названия и Описания — они будут вверху)
   const visibleAttributes = [
+    {
+      label: "Теги",
+      value: tags.length > 0
+        ? tags.map((t, i) => (
+            <span key={t} className="category-tag" style={{ marginRight: 7, fontSize: 14 }}>
+              {t}
+            </span>
+          ))
+        : "—"
+    },
     { label: "Объект исследования/разработки", value: attributes.object },
     { label: "Стоимость", value: attributes.cost },
     { label: "Срок реализации", value: attributes.realizationTerm },
@@ -157,9 +167,20 @@ const [currentSlide, setCurrentSlide] = useState(0);
     { label: "Проблематика", value: attributes.problematic },
     { label: "Предлагаемое решение", value: attributes.solution },
     { label: "Основная функциональность", value: attributes.functionality },
+    {
+      label: "Преимущества",
+      value: advantages.length > 0 ? (
+        <ul style={{ paddingLeft: 20, margin: 0 }}>
+          {advantages.map((a, i) => (
+            <li key={i} style={{ marginBottom: 2 }}>{a}</li>
+          ))}
+        </ul>
+      ) : "—"
+    },
     { label: "Стек технологий", value: attributes.technologyStack },
     { label: "Результаты тестирования", value: attributes.testResults },
     { label: "План внедрения", value: attributes.deploymentPlan }
+    
   ].filter((item) =>
     typeof item.value === "string" ? item.value.trim() !== "" : item.value !== undefined
   );
@@ -216,26 +237,65 @@ const [currentSlide, setCurrentSlide] = useState(0);
             </div>
             <div className="participants-card">
               <h2 className="card-title">Участники проекта</h2>
-              {participantsList}
+            <ul className="participants-list">
+  {collaborators.map((c, idx) => {
+    const user = userMap[c.userId];
+    const toProfile = user ? `/users/${user.id}` : "#";
+    return (
+      <li key={c.id || c.userId || idx} className="participant-item" style={{ padding: 0 }}>
+        <Link
+          to={toProfile}
+          className="participant-full-link"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            width: "100%",
+            textDecoration: "none",
+            borderRadius: "12px",
+            padding: "8px 0",
+            transition: "background 0.16s",
+          }}
+          title={user?.fullName || ""}
+        >
+          <span className="participant-avatar">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="18" fill="#F3F4F6"/>
+              <path d="M18 17C20.2091 17 22 15.2091 22 13C22 10.7909 20.2091 9 18 9C15.7909 9 14 10.7909 14 13C14 15.2091 15.7909 17 18 17Z" fill="#C1C6CE"/>
+              <path d="M29 26.5V25C29 21.6863 25.4183 19 21 19H15C10.5817 19 7 21.6863 7 25V26.5C7 27.0523 7.44772 27.5 8 27.5H28C28.5523 27.5 29 27.0523 29 26.5Z" fill="#C1C6CE"/>
+            </svg>
+          </span>
+          <span className="participant-text" style={{ minWidth: 0 }}>
+            <div className="participant-name" style={{
+              color: "#222",
+              fontSize: 17,
+              fontWeight: 500,
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+              lineHeight: "1.3",
+              marginBottom: 2,
+            }}>
+              {user ? user.fullName : `userId: ${c.userId}`}
+            </div>
+            <div className="participant-role" style={{
+              color: "#7a7a7a",
+              fontSize: 15,
+              marginTop: 0,
+            }}>
+              {c.role}
+            </div>
+          </span>
+        </Link>
+      </li>
+    );
+  })}
+</ul>
 
-              {/* Статус только для участников или создателя */}
-              {(canEdit || canViewStatus) && (
-                <>
-                  <h2 className="card-title status-title" style={{ marginTop: 28 }}>Статус проекта</h2>
-                  <div className={
-                    "status-badge " +
-                    (project.status === "В обработке"
-                      ? "status-processing"
-                      : project.status === "Отклонён"
-                        ? "status-rejected"
-                        : project.status === "Одобрен"
-                          ? "status-approved"
-                          : "")
-                  }>
-                    {project.status}
-                  </div>
-                </>
-              )}
+              <hr className="participants-divider" />
+              <h2 className="card-title status-title">Статус проекта</h2>
+              <div className="status-badge status-processing">
+                {project.status}
+              </div>
             </div>
             {/* Кнопка "Редактировать" только если автор */}
             {canEdit && (
@@ -326,44 +386,21 @@ const [currentSlide, setCurrentSlide] = useState(0);
                 </div>
                 {attributes.title && <h1 className="project-title">{attributes.title}</h1>}
                 {attributes.summary && (
-                  <p className="project-description">{attributes.summary}</p>
-                )}
-                {/* Категории/теги */}
-                {tags.length > 0 && (
-                  <div className="project-categories" style={{ marginTop: 12 }}>
-                    {tags.map((tag) => (
-                      <span key={tag} className="category-tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="project-attr-value">{attributes.summary}</p>
                 )}
 
                 {/* Все остальные атрибуты */}
-                <dl className="project-attributes" style={{ marginTop: 16 }}>
+                <dl className="project-attributes">
                   {visibleAttributes.map(({ label, value }) =>
                     <React.Fragment key={label}>
-                      <dt style={{ fontWeight: 500, marginTop: 10 }}>{label}</dt>
-                      <dd style={{ marginLeft: 0, marginBottom: 0 }}>{value}</dd>
+                      <dt className="project-attr-label">{label}</dt>
+                      <dd className="project-attr-value">{value}</dd>
                     </React.Fragment>
                   )}
                 </dl>
-
-                {/* Преимущества */}
-                {advantages.length > 0 && (
-                  <div className="project-advantages" style={{ marginTop: 16 }}>
-                    <strong>Преимущества:</strong>
-                    <ul>
-                      {advantages.map((a, i) => (
-                        <li key={i}>{a}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
                 <div className="project-footer" style={{ marginTop: 24, fontSize: 14, color: "#777" }}>
-                  <span>
-                    Создано: {new Date(project.createdAt).toLocaleString("ru-RU")}
+                  <span className="project-date">
+                    {new Date(project.createdAt).toLocaleDateString("ru-RU")}
                   </span>
                   {/* {project.updatedAt && (
                     <span style={{ marginLeft: 22 }}>

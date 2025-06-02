@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -11,19 +13,43 @@ export const Register: React.FC = () => {
     organisationName: '',
     organisationAddress: '',
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.email) newErrors.email = 'Введите email';
+    else if (!EMAIL_REGEXP.test(formData.email)) newErrors.email = 'Некорректный email';
+
+    if (!formData.password) newErrors.password = 'Введите пароль';
+    else if (formData.password.length < 8) newErrors.password = 'Пароль должен быть не менее 8 символов';
+
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Повторите пароль';
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Пароли не совпадают';
+
+    if (!formData.fullName) newErrors.fullName = 'Введите ФИО';
+
+    if (!formData.organisationName) newErrors.organisationName = 'Введите название организации';
+
+    if (!formData.organisationAddress) newErrors.organisationAddress = 'Введите адрес организации';
+
+    return newErrors;
+  };
+
+  const isFormValid = () => {
+    return Object.keys(validate()).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
-      return;
-    }
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    setServerError('');
+    if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const response = await fetch('http://46.149.67.92:80/auth/register', {
+      const response = await fetch('http://localhost:80/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -44,10 +70,10 @@ export const Register: React.FC = () => {
       if (response.ok) {
         navigate('/verify-email', { state: { email: formData.email } });
       } else {
-        setError('Ошибка регистрации. Попробуйте снова.');
+        setServerError('Ошибка регистрации. Попробуйте снова.');
       }
     } catch (err) {
-      setError('Ошибка подключения к серверу.');
+      setServerError('Ошибка подключения к серверу.');
     }
   };
 
@@ -57,6 +83,11 @@ export const Register: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: '', // очищаем ошибку у этого поля при изменении
+    }));
+    setServerError('');
   };
 
   return (
@@ -65,7 +96,7 @@ export const Register: React.FC = () => {
         <div className="form-header">
           <h1 className="form-title">Регистрация</h1>
         </div>
-        {error && <div className="error-message">{error}</div>}
+        {serverError && <div className="error-message">{serverError}</div>}
 
         <div className="form-group">
           <label className="form-label">Почта</label>
@@ -77,6 +108,7 @@ export const Register: React.FC = () => {
             value={formData.email}
             onChange={handleChange}
           />
+          {errors.email && <div className="error-message">{errors.email}</div>}
         </div>
 
         <div className="form-group">
@@ -89,6 +121,7 @@ export const Register: React.FC = () => {
             value={formData.password}
             onChange={handleChange}
           />
+          {errors.password && <div className="error-message">{errors.password}</div>}
         </div>
 
         <div className="form-group">
@@ -101,6 +134,7 @@ export const Register: React.FC = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
           />
+          {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
         </div>
 
         <div className="form-group">
@@ -113,6 +147,7 @@ export const Register: React.FC = () => {
             value={formData.fullName}
             onChange={handleChange}
           />
+          {errors.fullName && <div className="error-message">{errors.fullName}</div>}
         </div>
 
         <div className="form-group">
@@ -125,6 +160,7 @@ export const Register: React.FC = () => {
             value={formData.organisationName}
             onChange={handleChange}
           />
+          {errors.organisationName && <div className="error-message">{errors.organisationName}</div>}
         </div>
 
         <div className="form-group">
@@ -137,9 +173,13 @@ export const Register: React.FC = () => {
             value={formData.organisationAddress}
             onChange={handleChange}
           />
+          {errors.organisationAddress && <div className="error-message">{errors.organisationAddress}</div>}
         </div>
 
-        <button type="submit" className="submit-button">
+        <button
+          type="submit"
+          className="submit-button"
+        >
           Зарегистрироваться
         </button>
 

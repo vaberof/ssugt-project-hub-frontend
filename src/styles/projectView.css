@@ -43,28 +43,32 @@
 .participants-card {
   background-color: #fff;
   border-radius: 24px;
-  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.10);
   padding: 23px 20px;
 }
 
 .card-title {
-  color: #333;
+  color: #222;
   font-size: 20px;
   font-weight: 700;
-  margin: 0 0 27px;
+  margin: 0 0 21px 0;
 }
 
 .status-title {
-  margin: 41px 0 20px;
+  margin: 0 0 13px 0;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .status-badge {
   background-color: #fad6a5;
   color: #8b4513;
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 17px;
   text-align: center;
-  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 0;
 }
 
 .edit-button {
@@ -269,20 +273,40 @@ background: #fff;
 .participants-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .participant-item {
   display: flex;
-  gap: 11px;
-  align-items: center;
+  gap: 13px;
+  align-items: flex-start;
+  /* убираем любые бордеры/бэкграунды */
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
 }
 
 .participant-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: none !important;
+  margin-top: 2px; /* чуть опустить аватар, чтобы выравнять с текстом */
+}
+
+.participant-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* нужно для word-break ниже */
+  max-width: 170px; /* или 75% если нужно больше динамики */
 }
 
 .participant-info {
@@ -291,14 +315,27 @@ background: #fff;
 }
 
 .participant-name {
-  color: #333;
+  font-weight: 600;
+  color: #222;
   font-size: 16px;
-  line-height: 24px;
+  margin-bottom: 3px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal; /* перенос строк */
+  line-height: 1.25;
 }
 
 .participant-role {
-  color: #666;
+  color: #949494;
   font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 0;
+  word-break: break-word;
+}
+.participants-divider {
+  border: none;
+  border-bottom: 1px solid #E8E8E8;
+  margin: 22px 0 20px 0;
 }
 
 @media (max-width: 991px) {
@@ -329,4 +366,41 @@ background: #fff;
     padding-left: 20px;
     padding-right: 20px;
   }
+}
+
+/* Название поля (атрибута) */
+.project-attr-label {
+  font-size: 20px;
+  color: #253257;   
+  font-weight: 500;
+  margin-top: 18px;
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+/* Значение поля */
+.project-attr-value {
+  font-size: 1.13rem;
+   color: #666;
+  font-weight: 400;
+  margin: 0 0 1px 0;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.project-date {
+  font-size: 1.05rem;
+  color: #777;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+
+.participant-full-link:hover {
+  background: #f3f4f6;
+}
+.participant-full-link:active {
+  background: #e7eaf0;
+}
+.participant-full-link:focus-visible {
+  outline: 2px solid #2563eb;
 }

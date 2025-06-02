@@ -1,26 +1,46 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { saveToken, checkAdminStatus } from "../utils/auth";
-import { useAuth } from "../context/AuthContext"; // Добавляем импорт контекста
+import { saveToken } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
+
+const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const Login: React.FC = () => {
-  const { refreshAuth } = useAuth(); // Получаем функцию обновления авторизации
+  const { refreshAuth } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [serverError, setServerError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  // Функция валидации
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.email) newErrors.email = "Введите email";
+    else if (!EMAIL_REGEXP.test(formData.email)) newErrors.email = "Некорректный email";
+    if (!formData.password) newErrors.password = "Введите пароль";
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setIsSubmitted(true);
+
+    const validationErrors = validate();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) return;
+
+    setServerError("");
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://46.149.67.92:80/auth/login", {
+      const response = await fetch("http://localhost:80/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,26 +54,22 @@ export const Login: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
 
-        // Сохраняем токен в localStorage
         if (data.accessToken) {
           saveToken(data.accessToken);
-          // ВАЖНО: обновляем контекст авторизации!
           await refreshAuth();
-
-          // Навигация на проекты
           navigate("/projects");
         } else {
-          setError("Ошибка получения токена авторизации");
+          setServerError("Ошибка получения токена авторизации");
         }
       } else if (response.status === 401) {
-        setError("Неверный email или пароль");
+        setServerError("Неверный email или пароль");
       } else if (response.status === 404) {
-        setError("Пользователь не найден");
+        setServerError("Пользователь не найден");
       } else {
-        setError("Ошибка авторизации. Попробуйте снова.");
+        setServerError("Ошибка авторизации. Попробуйте снова.");
       }
     } catch (err) {
-      setError("Ошибка подключения к серверу");
+      setServerError("Ошибка подключения к серверу");
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +81,12 @@ export const Login: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+    // Очищаем ошибку этого поля, если меняется значение
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+    setServerError("");
   };
 
   return (
@@ -79,7 +101,7 @@ export const Login: React.FC = () => {
           <h1 className="form-title">Вход в систему</h1>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {serverError && <div className="error-message">{serverError}</div>}
 
         <div className="form-group">
           <label className="form-label">Почта</label>
@@ -91,6 +113,7 @@ export const Login: React.FC = () => {
             value={formData.email}
             onChange={handleChange}
           />
+          {isSubmitted && errors.email && <div className="error-message">{errors.email}</div>}
         </div>
 
         <div className="form-group">
@@ -111,12 +134,13 @@ export const Login: React.FC = () => {
               {showPassword ? "Скрыть" : "Показать"}
             </span>
           </div>
+          {isSubmitted && errors.password && <div className="error-message">{errors.password}</div>}
         </div>
 
         <button
           type="submit"
           className="submit-button"
-          disabled={isLoading || !formData.email || !formData.password}
+          disabled={isLoading}
         >
           {isLoading ? "Вход..." : "Войти"}
         </button>
@@ -128,7 +152,7 @@ export const Login: React.FC = () => {
           </Link>
         </div>
 
-        <div className="forgot-password">Забыли пароль?</div>
+        {/* <div className="forgot-password">Забыли пароль?</div> */}
       </form>
     </div>
   );

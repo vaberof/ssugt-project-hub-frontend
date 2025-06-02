@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getUserIdFromApi, getToken } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
+import "../styles/projectForm.css";
 
 const collaboratorRoles = [
   "Руководитель",
@@ -34,7 +35,7 @@ interface CollaboratorDraft {
 export const ProjectForm: React.FC = () => {
   const navigate = useNavigate();
 
-  // Стейты формы
+  // Form state
   const [projectType, setProjectType] = useState<"snk" | "laboratory">("laboratory");
   const [tags, setTags] = useState<ProjectTag[]>([]);
   const [newTag, setNewTag] = useState("");
@@ -44,7 +45,7 @@ export const ProjectForm: React.FC = () => {
   const [colSearchError, setColSearchError] = useState("");
   const [colLoading, setColLoading] = useState(false);
 
-  // --- Form fields ---
+  // Fields
   const [title, setTitle] = useState("");
   const [object, setObject] = useState("");
   const [summary, setSummary] = useState("");
@@ -69,59 +70,93 @@ export const ProjectForm: React.FC = () => {
   const [testResults, setTestResults] = useState("");
   const [deploymentPlan, setDeploymentPlan] = useState("");
 
-  // --- Файлы ---
+  // Files
   const [projectFiles, setProjectFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // --- Добавление себя как участника ---
- useEffect(() => {
-  async function fetchSelf() {
-    const token = getToken();
-    const userId = await getUserIdFromApi();
-    if (!userId) return;
-    const resp = await fetch(`http://46.149.67.92:80/users?ids=${userId}`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `${token}` } : {}),
-      },
-    });
-    const data = await resp.json();
-    if (data && data.users && data.users[0]) {
-      const user = data.users[0];
-      setCollaborators((prev) => {
-        // === ПРОВЕРКА ===
-        if (prev.some((c) => c.email === user.email)) return prev;
-        return [
-          {
-            email: user.email,
-            role: "",
-            user: {
-              id: user.id,
-              email: user.email,
-              fullName: user.fullName,
-            },
-            isCreator: true,
-          },
-          ...prev,
-        ];
-      });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const [dragActive, setDragActive] = useState(false);
+
+  const developingStageOptions = [
+  { value: "Концепт", label: "Концепт" },
+  { value: "Исследование", label: "Исследование" },
+  { value: "Разработка", label: "Разработка" },
+  { value: "Тестирование", label: "Тестирование" },
+  { value: "Внедрение", label: "Внедрение" },
+  { value: "Завершён", label: "Завершён" },
+  { value: "Приостановлен", label: "Приостановлен" },
+  { value: "Отменён", label: "Отменён" },
+  { value: "Другое", label: "Другое" },
+];
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!title.trim()) newErrors.title = "Введите название проекта";
+    if (!summary.trim()) newErrors.summary = "Введите описание проекта";
+    if (!developingStage.trim()) newErrors.developingStage = "Укажите текущий этап разработки";
+    if (!tags.length) newErrors.tags = "Добавьте хотя бы один тег";
+    if (!collaborators.length || collaborators.some(c => !c.role)) {
+      newErrors.collaborators = "У всех участников должна быть выбрана роль";
     }
-  }
-  fetchSelf();
-  // eslint-disable-next-line
-}, []);
+    return newErrors;
+  };
 
+  // Добавление себя как участника
+  useEffect(() => {
+    async function fetchSelf() {
+      const token = getToken();
+      const userId = await getUserIdFromApi();
+      if (!userId) return;
+      const resp = await fetch(`http://localhost:80/users?ids=${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `${token}` } : {}),
+        },
+      });
+      const data = await resp.json();
+      if (data && data.users && data.users[0]) {
+        const user = data.users[0];
+        setCollaborators((prev) => {
+          if (prev.some((c) => c.email === user.email)) return prev;
+          return [
+            {
+              email: user.email,
+              role: "",
+              user: {
+                id: user.id,
+                email: user.email,
+                fullName: user.fullName,
+              },
+              isCreator: true,
+            },
+            ...prev,
+          ];
+        });
+      }
+    }
+    fetchSelf();
+    // eslint-disable-next-line
+  }, []);
 
-  // --- Tags ---
+  // Для очистки ошибок при изменении
+  const handleFieldChange = (field: string, value: string, setter: (v: string) => void) => {
+    setter(value);
+    setErrors(prev => ({ ...prev, [field]: "" }));
+  };
+
+  // Tags
   const handleAddTag = () => {
     if (newTag.trim() && !tags.find((t) => t.name === newTag.trim())) {
       setTags([...tags, { name: newTag.trim() }]);
       setNewTag("");
+      setErrors(prev => ({ ...prev, tags: "" }));
     }
   };
   const handleRemoveTag = (idx: number) => setTags(tags.filter((_, i) => i !== idx));
 
-  // --- Advantages ---
+  // Advantages
   const handleAddAdvantage = () => {
     if (newAdvantage.trim() && !advantages.includes(newAdvantage.trim())) {
       setAdvantages([...advantages, newAdvantage.trim()]);
@@ -131,11 +166,11 @@ export const ProjectForm: React.FC = () => {
   const handleRemoveAdvantage = (idx: number) =>
     setAdvantages(advantages.filter((_, i) => i !== idx));
 
-  // --- Collaborators ---
+  // Collaborators
   async function fetchUserByEmail(email: string) {
     const token = getToken();
     try {
-      const resp = await fetch(`http://46.149.67.92:80/users/${encodeURIComponent(email)}`, {
+      const resp = await fetch(`http://localhost:80/users/${encodeURIComponent(email)}`, {
         headers: token ? { Authorization: `${token}` } : {},
       });
       if (!resp.ok) throw new Error();
@@ -156,7 +191,7 @@ export const ProjectForm: React.FC = () => {
       return;
     }
     if (collaborators.find((c) => c.email === newColEmail)) {
-      setColSearchError("Этот email уже добавлен");
+      setColSearchError("Этот пользователь уже добавлен");
       return;
     }
     setColLoading(true);
@@ -186,9 +221,10 @@ export const ProjectForm: React.FC = () => {
     setCollaborators((prev) =>
       prev.map((c, i) => (i === idx ? { ...c, role: value } : c))
     );
+    setErrors(prev => ({ ...prev, collaborators: "" }));
   };
 
-  // --- File Upload ---
+  // File Upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
     const images = selected.filter(f =>
@@ -202,9 +238,26 @@ export const ProjectForm: React.FC = () => {
     setProjectFiles(images);
   };
 
-  // --- Main Submit ---
+  const handleDropFiles = (files: FileList) => {
+  const images = Array.from(files).filter(f =>
+    ["image/jpeg", "image/png", "image/jpg"].includes(f.type)
+  );
+  const totalSize = images.reduce((acc, f) => acc + f.size, 0);
+  if (totalSize > 50 * 1024 * 1024) {
+    alert("Суммарный размер файлов не должен превышать 50 МБ");
+    return;
+  }
+  setProjectFiles(prev => [...prev, ...images]);
+};
+
+  // Main Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitted(true);
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+
     const token = getToken();
     if (!token) {
       alert("Вы не авторизованы");
@@ -268,7 +321,7 @@ export const ProjectForm: React.FC = () => {
     };
 
     try {
-      const resp = await fetch("http://46.149.67.92:80/projects", {
+      const resp = await fetch("http://localhost:80/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -279,13 +332,13 @@ export const ProjectForm: React.FC = () => {
       if (!resp.ok) throw new Error("Ошибка при создании проекта");
       const data = await resp.json();
 
-      // === Загрузка файлов ===
+      // Загрузка файлов
       if (data && data.id && projectFiles.length > 0) {
         const formData = new FormData();
         for (let file of projectFiles) {
           formData.append("files", file);
         }
-        const filesResp = await fetch(`http://46.149.67.92:80/projects/${data.id}/files`, {
+        const filesResp = await fetch(`http://localhost:80/projects/${data.id}/files`, {
           method: "POST",
           headers: { Authorization: `${token}` },
           body: formData,
@@ -306,7 +359,7 @@ export const ProjectForm: React.FC = () => {
     }
   };
 
-  // --- UI ---
+  // UI
   return (
     <form onSubmit={handleSubmit} className="project-form">
       {/* Тип проекта */}
@@ -345,7 +398,8 @@ export const ProjectForm: React.FC = () => {
         <h2 className="section-title">Общая информация</h2>
         <div className="form-group">
           <label className="form-label">Название проекта</label>
-          <input type="text" className="form-input" value={title} onChange={e => setTitle(e.target.value)} />
+          <input type="text" className="form-input" value={title} onChange={e => handleFieldChange("title", e.target.value, setTitle)} />
+          {isSubmitted && errors.title && <div className="error-message">{errors.title}</div>}
         </div>
         <div className="form-group">
           <label className="form-label">Объект исследования/разработки</label>
@@ -353,7 +407,8 @@ export const ProjectForm: React.FC = () => {
         </div>
         <div className="form-group">
           <label className="form-label">Описание проекта</label>
-          <textarea className="form-textarea" value={summary} onChange={e => setSummary(e.target.value)} />
+          <textarea className="form-textarea" value={summary} onChange={e => handleFieldChange("summary", e.target.value, setSummary)} />
+          {isSubmitted && errors.summary && <div className="error-message">{errors.summary}</div>}
         </div>
         <div className="form-row">
           <div className="form-group half-width">
@@ -361,9 +416,19 @@ export const ProjectForm: React.FC = () => {
             <input type="text" className="form-input" value={cost} onChange={e => setCost(e.target.value)} />
           </div>
           <div className="form-group half-width">
-            <label className="form-label">Текущий этап разработки</label>
-            <input type="text" className="form-input" value={developingStage} onChange={e => setDevelopingStage(e.target.value)} />
-          </div>
+  <label className="form-label">Текущий этап разработки</label>
+  <select
+    className="form-input"
+    value={developingStage}
+    onChange={e => handleFieldChange("developingStage", e.target.value, setDevelopingStage)}
+  >
+    <option value="">Выберите этап</option>
+    {developingStageOptions.map(opt => (
+      <option key={opt.value} value={opt.value}>{opt.label}</option>
+    ))}
+  </select>
+  {isSubmitted && errors.developingStage && <div className="error-message">{errors.developingStage}</div>}
+</div>
         </div>
         <div className="form-row">
           <div className="form-group half-width">
@@ -428,13 +493,13 @@ export const ProjectForm: React.FC = () => {
           </div>
           <div className="form-group">
             <label className="form-label">Преимущества решения</label>
-            <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+            <div className="tags-input-container">
               <input type="text" className="form-input" value={newAdvantage} onChange={e => setNewAdvantage(e.target.value)} />
               <button type="button" className="add-tag-button" onClick={handleAddAdvantage}>
                 Добавить
               </button>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <div className="tags-container">
               {advantages.map((adv, idx) => (
                 <div key={idx} className="tag-item">
                   <span>{adv}</span>
@@ -475,6 +540,7 @@ export const ProjectForm: React.FC = () => {
             Добавить
           </button>
         </div>
+        {isSubmitted && errors.tags && <div className="error-message">{errors.tags}</div>}
         <div className="tags-container">
           {tags.map((tag, index) => (
             <div key={index} className="tag-item">
@@ -494,7 +560,7 @@ export const ProjectForm: React.FC = () => {
       {/* Соавторы */}
       <section className="form-section">
         <h2 className="section-title">Участники проекта</h2>
-        <div className="add-participant" style={{ gap: 12 }}>
+        <div className="add-participant">
           <input
             type="email"
             className="participant-input"
@@ -504,7 +570,7 @@ export const ProjectForm: React.FC = () => {
             disabled={colLoading}
           />
           <select
-            className="role-input"
+            className="participant-role"
             value={newColRole}
             onChange={e => setNewColRole(e.target.value as CollaboratorRole)}
             disabled={colLoading}
@@ -524,8 +590,9 @@ export const ProjectForm: React.FC = () => {
           >
             {colLoading ? "Поиск..." : "Добавить"}
           </button>
-          {colSearchError && <span className="error-message">{colSearchError}</span>}
         </div>
+        {isSubmitted && errors.collaborators && <div className="error-message">{errors.collaborators}</div>}
+        {colSearchError && <span className="error-message">{colSearchError}</span>}
         <div className="participants-list">
           {collaborators.map((col, idx) => (
             <div key={idx} className="participant-item">
@@ -563,26 +630,83 @@ export const ProjectForm: React.FC = () => {
       </section>
 
       {/* Изображения */}
-      <section className="form-section">
-        <h2 className="section-title">Изображения</h2>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".jpg,.jpeg,.png"
-          multiple
-          style={{ display: "block", margin: "8px 0" }}
-          onChange={handleFileChange}
-        />
-        {projectFiles.length > 0 && (
-          <ul>
-            {projectFiles.map((file, idx) => (
-              <li key={idx}>
-                {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} МБ)
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+     <section className="form-section">
+  <h2 className="section-title">Изображения</h2>
+  <div
+  className={`dropzone${dragActive ? ' drag-active' : ''}`}
+  onDragOver={e => { e.preventDefault(); setDragActive(true); }}
+  onDragLeave={e => { e.preventDefault(); setDragActive(false); }}
+  onDrop={e => {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files) {
+      handleDropFiles(e.dataTransfer.files);
+    }
+  }}
+  onClick={() => fileInputRef.current && fileInputRef.current.click()}
+  >
+    <div className="dropzone-inner">
+      <svg className="dropzone-icon" width="48" height="48" fill="none"><path d="M24 5v30m0 0l-8-8m8 8l8-8" stroke="#3877e3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="37" width="42" height="6" rx="3" fill="#e8f0fe"/></svg>
+      <div className="dropzone-label">
+        Перетащите файлы сюда или
+      </div>
+      <button
+        type="button"
+        className="custom-upload-button"
+        onClick={e => {
+          e.stopPropagation();
+          fileInputRef.current && fileInputRef.current.click();
+        }}
+      >
+        Выберите файлы
+      </button>
+      <div className="dropzone-hint">PNG, JPEG, JPG до 50 МБ</div>
+    </div>
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".jpg,.jpeg,.png"
+      multiple
+      className="file-input"
+      onChange={handleFileChange}
+      style={{ display: "none" }}
+    />
+  </div>
+  {projectFiles.length > 0 && (
+    <ul className="file-list-preview">
+      {projectFiles.map((file, idx) => (
+        <li key={idx} className="file-preview-item">
+          {file.type.startsWith("image") && (
+            <img
+              className="file-preview-thumb"
+              src={URL.createObjectURL(file)}
+              alt={file.name}
+            />
+          )}
+          <div className="file-preview-info">
+            <div className="file-preview-name">{file.name}</div>
+            <div className="file-preview-size">
+              {(file.size / (1024 * 1024)).toFixed(2)} МБ
+            </div>
+          </div>
+          <button
+            type="button"
+            className="remove-file-button"
+            title="Удалить файл"
+            onClick={e => {
+              e.stopPropagation();
+              setProjectFiles(files => files.filter((_, i) => i !== idx));
+            }}
+          >
+            ✕
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+
+
 
       <button type="submit" className="submit-button">
         Создать проект
